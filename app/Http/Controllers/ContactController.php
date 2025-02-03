@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Contact;
+use Illuminate\Http\Request;
 
 class ContactController extends Controller
 {
@@ -17,11 +17,7 @@ class ContactController extends Controller
         ]);
 
         // Simpan data ke database
-        Contact::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'message' => $request->message,
-        ]);
+        Contact::create($request->all());
 
         return back()->with('success', 'Pesan Anda telah berhasil dikirim dan disimpan.');
     }
