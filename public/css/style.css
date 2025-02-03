@@ -1,67 +1,69 @@
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-font-smoothing: antialiased;
-    }
-    ul, li {
-      list-style: none;
-    }
-    a {
-      text-decoration: none;
-    }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+}
 
-    /* Scroll Produk Section */
-    .scrolling-wrapper {
-      overflow-x: auto;
-      display: flex;
-      gap: 1rem;
-      padding-bottom: 10px;
-      justify-content: center; /* Center products horizontally */
-    }
+ul, li {
+    list-style: none;
+}
 
-    .scrolling-wrapper::-webkit-scrollbar {
-      height: 5px;
-    }
+a {
+    text-decoration: none;
+}
 
-    .scrolling-wrapper::-webkit-scrollbar-thumb {
-      background: #ccc;
-      border-radius: 5px;
-    }
+/* Scroll Produk Section */
+.scrolling-wrapper {
+    overflow-x: auto;
+    display: flex;
+    gap: 1rem;
+    padding-bottom: 10px;
+    justify-content: center; /* Center products horizontally */
+}
 
-    .scrolling-wrapper::-webkit-scrollbar-track {
-      background: #f1f1f1;
-    }
+.scrolling-wrapper::-webkit-scrollbar {
+    height: 5px;
+}
 
-    /* Auto Scroll Produk */
-    @keyframes slide {
-      0% {
+.scrolling-wrapper::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 5px;
+}
+
+.scrolling-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Auto Scroll Produk */
+@keyframes slide {
+    0% {
         transform: translateX(0);
-      }
-      100% {
+    }
+    100% {
         transform: translateX(-100%);
-      }
     }
+}
 
-    .auto-slide {
-      display: flex;
-      animation: slide 20s linear infinite;
-    }
+.auto-slide {
+    display: flex;
+    animation: slide 20s linear infinite;
+}
 
-    .product-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center; /* Center product text and image */
-      justify-content: center;
-    }
+.product-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center product text and image */
+    justify-content: center;
+}
 
-    .product-item img {
-      width: 200px;
-      height: 200px;
-      object-fit: cover;
-    }
+.product-item img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+}
 
-    .nav a :hover{
-        background-color: blue !important;
-     }
+.nav a :hover {
+    background-color: blue !important;
+}
