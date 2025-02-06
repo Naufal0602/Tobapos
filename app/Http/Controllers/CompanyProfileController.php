@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreCompanyProfileRequest;
 use App\Http\Requests\UpdateCompanyProfileRequest;
 use App\Models\CompanyProfile;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use Storage;
 
 class CompanyProfileController extends Controller
 {

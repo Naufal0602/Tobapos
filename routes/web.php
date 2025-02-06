@@ -9,13 +9,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [CompanyProfileController::class, 'index']);
 
-Route::group(['prefix' => '/dashboard', 'middleware' => ['auth'], 'as' => 'dashboard.'], function () {
-    Route::get('/', function () {
+Route::group(['prefix' => '/dashboard', 'middleware' => ['auth'], 'as' => 'dashboard.'], static function () {
+    Route::get('/', static function () {
         return view('dashboard');
     })->name('index');
 
     // Company Profile
-    Route::group(['prefix' => '/company-profile', 'as' => 'company_profile.'], function () {
+    Route::group(['prefix' => '/company-profile', 'as' => 'company_profile.'], static function () {
         Route::get('/edit', [CompanyProfileController::class, 'edit'])->name('company_profile.edit');
         Route::patch('/update', [CompanyProfileController::class, 'update'])->name('company_profile.update');
     });

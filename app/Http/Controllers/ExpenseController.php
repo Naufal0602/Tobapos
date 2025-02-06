@@ -6,8 +6,8 @@ use App\Http\Requests\StoreExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
 use App\Models\Expense;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use Storage;
 
 class ExpenseController extends Controller
 {

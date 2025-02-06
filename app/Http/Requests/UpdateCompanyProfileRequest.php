@@ -58,7 +58,7 @@ class UpdateCompanyProfileRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'profile' => CompanyProfile::find($this->route('company_profile'))
+            'profile' => CompanyProfile::find($this->route('company_profile')),
         ]);
     }
 }
