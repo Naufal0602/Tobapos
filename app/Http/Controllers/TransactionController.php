@@ -16,6 +16,7 @@ class TransactionController extends Controller
     public function index(): View
     {
         $transactions = Transaction::latest()->paginate(10);
+
         return view('dashboard.transactions.index', compact('transactions'));
     }
 
@@ -28,7 +29,7 @@ class TransactionController extends Controller
 
         $transaction = Transaction::create([
             'payment_method' => $validated['payment_method'],
-            'total' => collect($validated['items'])->sum(fn($item) => $item['quantity'] * $item['price']),
+            'total' => collect($validated['items'])->sum(fn ($item) => $item['quantity'] * $item['price']),
         ]);
         $transaction->items()->createMany($validated['items']);
 
@@ -84,6 +85,7 @@ class TransactionController extends Controller
     public function destroy(Transaction $transaction): RedirectResponse
     {
         $transaction->delete();
+
         return redirect()->route('dashboard.transactions.index')->with('success', 'Transaction has been deleted');
     }
 }
