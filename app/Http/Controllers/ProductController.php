@@ -6,8 +6,8 @@ use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use Storage;
 
 class ProductController extends Controller
 {
@@ -17,6 +17,7 @@ class ProductController extends Controller
     public function index(): View
     {
         $products = Product::latest()->paginate(10);
+
         return view('dashboard.product.index', compact('products'));
     }
 
@@ -88,6 +89,7 @@ class ProductController extends Controller
     public function destroy(Product $product): RedirectResponse
     {
         $product->delete();
+
         return redirect()->route('dashboard.product.index')->with('success', 'Product deleted successfully.');
     }
 }
