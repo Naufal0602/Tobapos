@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateCompanyProfileRequest;
 use App\Models\CompanyProfile;
+use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
@@ -15,7 +16,7 @@ class CompanyProfileController extends Controller
      */
     public function index(): View
     {
-        return view('welcome', ['companyProfile' => CompanyProfile::first()]);
+        return view('welcome', ['companyProfile' => CompanyProfile::first(), 'products' => Product::latest()->take(8)->get()]);
     }
 
     /**
@@ -23,6 +24,7 @@ class CompanyProfileController extends Controller
      */
     public function edit(CompanyProfile $companyProfile)
     {
+        $companyProfile = CompanyProfile::first();
         return view('dashboard.company_profile.edit', compact('companyProfile'));
     }
 

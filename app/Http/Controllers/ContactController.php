@@ -11,14 +11,14 @@ class ContactController extends Controller
     public function sendMessage(Request $request): RedirectResponse
     {
         // Validasi input form
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string',
             'email' => 'required|email',
             'message' => 'required|string',
         ]);
 
         // Simpan data ke database
-        Contact::create($request->all());
+        $contact = Contact::create($validated);
 
         return back()->with('success', 'Pesan Anda telah berhasil dikirim dan disimpan.');
     }

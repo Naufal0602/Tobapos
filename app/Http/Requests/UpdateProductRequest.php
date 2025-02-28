@@ -27,8 +27,9 @@ class UpdateProductRequest extends FormRequest
             'category' => ['sometimes', 'required', 'string'],
             'price' => ['sometimes', 'required', 'numeric', 'min:0'],
             'stock' => ['sometimes', 'required', 'numeric', 'min:1'],
-            'image' => ['nullable', 'string'],
+            'image' => ['nullable', 'image'],
             'description' => ['nullable', 'string'],
+            'size' => ['nullable', 'string'],
         ];
     }
 }

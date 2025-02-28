@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTransactionRequest;
 use App\Http\Requests\UpdateTransactionRequest;
+use App\Models\Product;
 use App\Models\Transaction;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -23,17 +24,38 @@ class TransactionController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTransactionRequest $request): RedirectResponse
+    public function store(StoreTransactionRequest $request)
     {
-        $validated = $request->validated();
+        try {
+            $validated = $request->validated();
 
-        $transaction = Transaction::create([
-            'payment_method' => $validated['payment_method'],
-            'total' => collect($validated['items'])->sum(fn ($item) => $item['quantity'] * $item['price']),
-        ]);
-        $transaction->items()->createMany($validated['items']);
+            $transaction = Transaction::create([
+                'payment_method' => $validated['payment_method'],
+                'total' => collect($validated['items'])->sum(fn ($item) => $item['quantity'] * $item['price']),
+            ]);
 
-        return redirect()->route('dashboard.transactions.index')->with('success', 'Transaction created successfully.');
+            $transaction->items()->createMany($validated['items']);
+
+            // Kurangi stok produk
+            foreach ($validated['items'] as $item) {
+                $product = Product::find($item['product_id']);
+                if ($product) {
+                    $product->stock -= $item['quantity'];
+                    $product->save();
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Transaksi berhasil!',
+                'redirect' => route('dashboard.transactions.index'),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -87,5 +109,13 @@ class TransactionController extends Controller
         $transaction->delete();
 
         return redirect()->route('dashboard.transactions.index')->with('success', 'Transaction has been deleted');
+    }
+
+    public function income(): View
+    {
+        $transactions = Transaction::with('items')->get();
+        $totalIncome = $transactions->sum('total');
+    
+        return view('dashboard.income.index', compact('transactions', 'totalIncome'));
     }
 }

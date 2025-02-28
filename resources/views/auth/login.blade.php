@@ -1,70 +1,84 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@3.2.0/dist/tailwind.min.css"/>
-    <script src="https://cdn.tailwindcss.com/3.2.0"></script>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Tobapos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 </head>
-<body class="h-screen flex">
-<!-- Bagian Kiri: Logo -->
-<div class="bg-white flex-1 flex items-center justify-center">
-    <img src="{{ asset('img/logo-01.png') }}" alt="Logo" class="w-72"/>
-</div>
+<body class="h-screen flex items-center justify-center bg-gradient-to-r from-orange-300 to-purple-500 px-4">
 
-<!-- Bagian Kanan: Form Login -->
-<div class="bg-gray-200 flex-1 flex flex-col items-center justify-center px-8 py-6">
-    <div class="bg-white w-full max-w-md px-8 py-6 rounded-2xl shadow-lg border border-gray-300">
-        <h1 class="text-4xl font-bold text-black mb-6 text-center">LOGIN</h1>
+  <div class="w-full max-w-4xl flex flex-col md:flex-row bg-white shadow-lg rounded-2xl overflow-hidden animate-slideUp">
+      
+      <!-- Bagian Kiri: Logo & Welcome (Hanya Muncul di Desktop) -->
+      <div class="hidden md:flex flex-1 flex-col items-center justify-center text-white bg-gradient-to-t   from-purple-900 to-white p-10">
+          <img src="{{ asset('img/logo-v3.png') }}" alt="Logo" class="w-40 md:w-60 mb-4 animate-bounceSlow">
+          <h2 class="text-3xl font-bold">Welcome Back!</h2>
+      </div>
 
-        <!-- Session Status -->
-        <x-auth-session-status class="mb-4" :status="session('status')"/>
+      <!-- Bagian Kanan: Form Login -->
+      <div class="flex-1 p-8 md:p-10">
+          <h2 class="text-3xl font-bold text-gray-800 text-center mb-6">Login</h2>
+          <p class="text-gray-500 text-center mb-6">Selamat datang kembali! Silakan masuk ke akun Anda.</p>
 
-        <form method="POST" action="{{ route('login') }}" class="w-full">
-            @csrf
+          <form action="{{ route('login') }}" method="POST">
+              @csrf
+              
+              <!-- Input Email -->
+              <div class="mb-4">
+                  <label for="email" class="block text-sm font-semibold text-gray-600">Email</label>
+                  <div class="relative mt-2">
+                      <i class='bx bx-envelope absolute left-3 top-3 text-gray-400 text-lg'></i>
+                      <input type="email" id="email" name="email" required
+                          class="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                  </div>
+              </div>
 
-            <!-- Email Address -->
-            <div class="mb-4">
-                <x-input-label for="email" :value="__('Email')"/>
-                <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')"
-                              required autofocus/>
-                <x-input-error :messages="$errors->get('email')" class="mt-2"/>
-            </div>
+              <!-- Input Password -->
+              <div class="mb-6">
+                  <label for="password" class="block text-sm font-semibold text-gray-600">Password</label>
+                  <div class="relative mt-2">
+                      <i class='bx bx-lock absolute left-3 top-3 text-gray-400 text-lg'></i>
+                      <input type="password" id="password" name="password" required
+                          class="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                  </div>
+              </div>
 
-            <!-- Password -->
-            <div class="mb-4">
-                <x-input-label for="password" :value="__('Password')"/>
-                <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required/>
-                <x-input-error :messages="$errors->get('password')" class="mt-2"/>
-            </div>
+              
 
-            <!-- Remember Me -->
-            <div class="flex items-center mb-4">
-                <input id="remember_me" type="checkbox"
-                       class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" name="remember"/>
-                <label for="remember_me" class="ml-2 text-sm text-gray-600">{{ __('Remember me') }}</label>
-            </div>
+              <!-- Tombol Login dengan Hover Animasi -->
+              <button type="submit"
+                  class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg transition-transform transform hover:scale-105">
+                  Login
+              </button>
+          </form>
+      </div>
+  </div>
 
-            <!-- Login Button -->
-            <div class="flex justify-between items-center">
-                @if (Route::has('password.request'))
-                    <a href="{{ route('password.request') }}"
-                       class="text-sm text-gray-600 hover:text-indigo-500">{{ __('Forgot your password?') }}</a>
-                @endif
-
-                <x-primary-button>
-                    {{ __('Log in') }}
-                </x-primary-button>
-            </div>
-        </form>
-
-        <div class="mt-6 text-center text-sm text-gray-600">
-            <span>Don't have an account?</span>
-            <a href="{{ route('register') }}" class="text-indigo-600 hover:underline">Sign Up</a>
-        </div>
-    </div>
-</div>
 </body>
 </html>
+
+<script>
+  tailwind.config = {
+      theme: {
+          extend: {
+              animation: {
+                  fadeIn: "fadeIn 1s ease-in-out",
+                  slideUp: "slideUp 0.8s ease-out",
+                  bounceSlow: "bounce 2s infinite",
+              },
+              keyframes: {
+                  fadeIn: {
+                      "0%": { opacity: "0" },
+                      "100%": { opacity: "1" },
+                  },
+                  slideUp: {
+                      "0%": { transform: "translateY(20px)", opacity: "0" },
+                      "100%": { transform: "translateY(0)", opacity: "1" },
+                  }
+              }
+          }
+      }
+  }
+</script>
