@@ -1,16 +1,18 @@
-@php
+<?php
     use App\Models\Product;
-    use App\Models\transaction; // Assuming you have an Order model
+    use App\Models\Transaction;
     use App\Models\Expense;
 
     $products = Product::latest()->get();
     $totalProducts = Product::count();
 
-    
-    $expenses = Expense::latest()->get();
-    $totalExpenses = Expense::sum('amount'); // Menghitung total amount dari expenses
+    $currentMonth = now()->format('Y-m');
+
+    $expenses = Expense::where('created_at', 'like', "$currentMonth%")->latest()->get();
+    $totalExpenses = Expense::where('created_at', 'like', "$currentMonth%")->sum('amount'); // Menghitung total amount dari expenses untuk bulan ini
 
     $expenseData = Expense::selectRaw('DATE(created_at) as date, SUM(amount) as total')
+        ->where('created_at', 'like', "$currentMonth%")
         ->groupBy('date')
         ->orderBy('date')
         ->get();
@@ -20,19 +22,29 @@
     $expenseValues = $expenseData->pluck('total')->toArray();
 
     // Get the number of orders for the current month
-    $currentMonth = now()->format('Y-m');
-    $monthlyOrders = transaction::where('created_at', 'like', "$currentMonth%")->count();
-    $orderData = transaction::selectRaw('DATE(created_at) as date, COUNT(*) as total')
-    ->groupBy('date')
-    ->orderBy('date')
-    ->get();
+    $monthlyOrders = Transaction::where('created_at', 'like', "$currentMonth%")->count();
+    $orderData = Transaction::selectRaw('DATE(created_at) as date, COUNT(*) as total')
+        ->where('created_at', 'like', "$currentMonth%")
+        ->groupBy('date')
+        ->orderBy('date')
+        ->get();
 
-// Format data untuk Chart.js
-$orderLabels = $orderData->pluck('date')->toArray();
-$orderValues = $orderData->pluck('total')->toArray();
-$monthlyIncome = Transaction::where('created_at', 'like', "$currentMonth%")->sum('total');
+    // Format data untuk Chart.js
+    $orderLabels = $orderData->pluck('date')->toArray();
+    $orderValues = $orderData->pluck('total')->toArray();
+    $monthlyIncome = Transaction::where('created_at', 'like', "$currentMonth%")->sum('total');
 
-@endphp
+    // Data pemasukan
+    $incomeData = Transaction::selectRaw('DATE(created_at) as date, SUM(total) as total')
+        ->where('created_at', 'like', "$currentMonth%")
+        ->groupBy('date')
+        ->orderBy('date')
+        ->get();
+
+    // Format data untuk Chart.js
+    $incomeLabels = $incomeData->pluck('date')->toArray();
+    $incomeValues = $incomeData->pluck('total')->toArray();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -218,17 +230,21 @@ $monthlyIncome = Transaction::where('created_at', 'like', "$currentMonth%")->sum
 
   <!-- Chart Script -->
   <script>
+  
     document.addEventListener("DOMContentLoaded", function() {
          const ctx = document.getElementById('financeChart').getContext('2d');
 
          // Data asli dari Blade (diambil dari backend)
          const rawExpenseLabels = @json($expenseLabels); // Format tanggal dari backend
          const rawExpenseValues = @json($expenseValues); // Jumlah pengeluaran sesuai tanggal
+         const rawIncomeLabels = @json($incomeLabels); // Format tanggal dari backend
+         const rawIncomeValues = @json($incomeValues); // Jumlah pemasukan sesuai tanggal
 
          // Fungsi untuk mengelompokkan data berdasarkan periode waktu
          function groupDataByTime(period) {
              const groupedLabels = [];
-             const groupedValues = {};
+             const groupedExpenseValues = {};
+             const groupedIncomeValues = {};
              
              rawExpenseLabels.forEach((date, index) => {
                  let key;
@@ -244,16 +260,40 @@ $monthlyIncome = Transaction::where('created_at', 'like', "$currentMonth%")->sum
                      key = date; // Harian (default)
                  }
 
-                 if (!groupedValues[key]) {
-                     groupedValues[key] = 0;
+                 if (!groupedExpenseValues[key]) {
+                     groupedExpenseValues[key] = 0;
                      groupedLabels.push(key);
                  }
-                 groupedValues[key] += rawExpenseValues[index];
+                 groupedExpenseValues[key] += rawExpenseValues[index];
+             });
+
+             rawIncomeLabels.forEach((date, index) => {
+                 let key;
+                 const dateObj = new Date(date);
+
+                 if (period === "weekly") {
+                     key = `Minggu ${getWeekNumber(dateObj)}`;
+                 } else if (period === "monthly") {
+                     key = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+                 } else if (period === "yearly") {
+                     key = `${dateObj.getFullYear()}`;
+                 } else {
+                     key = date; // Harian (default)
+                 }
+
+                 if (!groupedIncomeValues[key]) {
+                     groupedIncomeValues[key] = 0;
+                     if (!groupedLabels.includes(key)) {
+                         groupedLabels.push(key);
+                     }
+                 }
+                 groupedIncomeValues[key] += rawIncomeValues[index];
              });
 
              return {
                  labels: groupedLabels,
-                 values: groupedLabels.map(label => groupedValues[label])
+                 expenseValues: groupedLabels.map(label => groupedExpenseValues[label] || 0),
+                 incomeValues: groupedLabels.map(label => groupedIncomeValues[label] || 0)
              };
          }
 
@@ -269,19 +309,34 @@ $monthlyIncome = Transaction::where('created_at', 'like', "$currentMonth%")->sum
              type: 'line',
              data: {
                  labels: chartData.labels,
-                 datasets: [{
-                     label: 'Pengeluaran',
-                     data: chartData.values,
-                     borderColor: '#9333ea',
-                     backgroundColor: 'rgba(147, 51, 234, 0.1)',
-                     borderWidth: 2,
-                     pointRadius: 4,
-                     pointBackgroundColor: '#9333ea',
-                     pointHoverRadius: 6,
-                     pointHoverBackgroundColor: '#7e22ce',
-                     fill: true,
-                     tension: 0.2
-                 }]
+                 datasets: [
+                     {
+                         label: 'Pengeluaran',
+                         data: chartData.expenseValues,
+                         borderColor: '#9333ea',
+                         backgroundColor: 'rgba(147, 51, 234, 0.1)',
+                         borderWidth: 2,
+                         pointRadius: 4,
+                         pointBackgroundColor: '#9333ea',
+                         pointHoverRadius: 6,
+                         pointHoverBackgroundColor: '#7e22ce',
+                         fill: true,
+                         tension: 0.2
+                     },
+                     {
+                         label: 'Pemasukan',
+                         data: chartData.incomeValues,
+                         borderColor: '#34d399',
+                         backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                         borderWidth: 2,
+                         pointRadius: 4,
+                         pointBackgroundColor: '#34d399',
+                         pointHoverRadius: 6,
+                         pointHoverBackgroundColor: '#059669',
+                         fill: true,
+                         tension: 0.2
+                     }
+                 ]
              },
              options: {
                  responsive: true,
@@ -314,7 +369,7 @@ $monthlyIncome = Transaction::where('created_at', 'like', "$currentMonth%")->sum
                          },
                          callbacks: {
                              label: function(context) {
-                                 return 'Pengeluaran: Rp. ' + context.parsed.y.toLocaleString('id-ID');
+                                 return context.dataset.label + ': Rp. ' + context.parsed.y.toLocaleString('id-ID');
                              }
                          }
                      },
@@ -334,7 +389,8 @@ $monthlyIncome = Transaction::where('created_at', 'like', "$currentMonth%")->sum
              chartData = groupDataByTime(selectedPeriod);
 
              financeChart.data.labels = chartData.labels;
-             financeChart.data.datasets[0].data = chartData.values;
+             financeChart.data.datasets[0].data = chartData.expenseValues;
+             financeChart.data.datasets[1].data = chartData.incomeValues;
              financeChart.update();
          });
      });
