@@ -6,7 +6,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ContactController;
-use App\Http\Controllers\StrukController;
+use App\Http\Controllers\PrintController;
 use Illuminate\Support\Facades\Route;
 //company_profile
 Route::get('/', [CompanyProfileController::class, 'index']);
@@ -38,10 +38,17 @@ Route::group(['prefix' => '/dashboard', 'middleware' => ['auth'], 'as' => 'dashb
         return view('dashboard.product.menu');
     })->name('products.menu');
 
+    Route::post('/product/update-stock', [ProductController::class, 'updateStock']);
+
 
     // Transaction
     Route::resource('transactions', TransactionController::class);
-    
+    //contact
+    Route::resource('contact', ContactController::class); 
+
+    //print
+    Route::post('/print/receipt', [TransactionController::class, 'printReceipt'])->name('print.receipt');
+    Route::post('/print/receipt-via-powershell', [PrintController::class, 'printReceiptViaPowerShell'])->name('print.receipt-via-powershell');    
 });
 
 Route::middleware('auth')->group(function () {

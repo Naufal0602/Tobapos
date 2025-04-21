@@ -34,7 +34,7 @@
         }
     </style>
 </head>
-<body class="font-sans" style="background:#F5E6F0;">
+<body class="font-sans" style="background:#F5E6F0;" x-data="{ showModal: false, modalImage: '' }">
     @include('layouts.sidebar')
     @include('layouts.navbar')
 
@@ -80,7 +80,7 @@
                     </thead>
                     <tbody id="expenseBody">
                         @forelse ($expenses as $expense)
-                            <tr class="expense-row" data-date="{{ $expense->created_at->format('Y-m') }}" data-day="{{ $expense->created_at->format('l') }}">
+                            <tr class="expense-row" data-date="{{ $expense->created_at->format('Y-m') }}" data-day="{{ $expense->created_at->format('l') }}" data-amount="{{ $expense->amount }}">
                                 <td class="border border-gray-300 px-4 py-2">{{ $expense->name }}</td>
                                 <td class="border border-gray-300 px-4 py-2">{{ $expense->category }}</td>
                                 <td class="border border-gray-300 px-4 py-2">Rp {{ number_format($expense->amount, 0, ',', '.') }}</td>
@@ -89,7 +89,7 @@
                                     @if ($expense->receipt_image)
                                     <img src="{{ asset('storage/' . $expense->receipt_image) }}" 
                                     class="w-16 h-16 object-cover rounded-lg mx-auto cursor-pointer"
-                                    x-on:click="console.log('Clicked!'); showModal = true; modalImage = '{{ asset('storage/' . $expense->receipt_image) }}'">
+                                    onclick="openModal('{{ asset('storage/' . $expense->receipt_image) }}')">
                                     @else
                                     
                                     @endif
@@ -109,25 +109,73 @@
                         </tr>
                         @endforelse
                     </tbody>
+                    <tfoot>
+                        <!-- Baris untuk total pengeluaran -->
+                        <tr id="totalRow" class="bg-gray-100 font-bold">
+                            <td class="border border-gray-300 px-4 py-2" colspan="2">Total Pengeluaran</td>
+                            <td id="totalAmount" class="border justify-center border-gray-300 px-4 py-2" colspan="4">Rp 0</td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>
     </div>
     
-
-    {{-- modal --}}
-    <div x-data="{ showModal: false, modalImage: '' }">
-        <div x-show="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div class="bg-white p-4 rounded-lg shadow-lg relative">
-                <button x-on:click="showModal = false" class="absolute top-2 right-2 text-xl">&times;</button>
-                <img :src="modalImage" class="max-w-full h-auto rounded-lg">
-            </div>
+    <!-- Modal gambar - Perbaikan untuk memastikan modal bekerja -->
+    <div x-show="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-4 rounded-lg shadow-lg relative max-w-lg w-full">
+            <button @click="showModal = false" class="absolute top-2 right-2 text-xl font-bold">&times;</button>
+            <img :src="modalImage" class="max-w-full h-auto rounded-lg mx-auto">
         </div>
     </div>
- </body>
+</body>
 </html>
 
 <script>
+    // Modal handler dengan JavaScript murni (tidak bergantung pada Alpine.js)
+    function openModal(imageSrc) {
+        // Alpine.js data access
+        const alpineData = document.querySelector('body').__x.$data;
+        alpineData.modalImage = imageSrc;
+        alpineData.showModal = true;
+    }
+
+    function calculateTotal() {
+        let total = 0;
+        let visibleRows = 0;
+        const rows = document.querySelectorAll('.expense-row');
+        
+        rows.forEach(row => {
+            if (row.style.display !== 'none') {
+                // Ambil nilai amount dari atribut data-amount
+                const amount = parseInt(row.getAttribute('data-amount'));
+                if (!isNaN(amount)) {
+                    total += amount;
+                    visibleRows++;
+                }
+            }
+        });
+        
+        // Format total dengan pemisah ribuan
+        const formattedTotal = new Intl.NumberFormat('id-ID', { 
+            minimumFractionDigits: 0, 
+            maximumFractionDigits: 0 
+        }).format(total);
+        
+        document.getElementById('totalAmount').textContent = 'Rp ' + formattedTotal;
+        
+        // Tampilkan atau sembunyikan baris total berdasarkan apakah ada data atau tidak
+        const totalRow = document.getElementById('totalRow');
+        if (totalRow) {
+            totalRow.style.display = visibleRows > 0 ? 'table-row' : 'none';
+        }
+        
+        const noDataRow = document.getElementById('noDataRow');
+        if (noDataRow) {
+            noDataRow.style.display = visibleRows > 0 ? 'none' : 'table-row';
+        }
+    }
+
     function filterData() {
         let selectedDay = document.getElementById("filterHari").value;
         let selectedMonth = document.getElementById("filterBulan").value;
@@ -150,34 +198,42 @@
             if (showRow) visibleRows++;
         });
 
-        document.getElementById("noDataRow").style.display = visibleRows ? "none" : "table-row";
+        const noDataRow = document.getElementById("noDataRow");
+        if (noDataRow) {
+            noDataRow.style.display = visibleRows > 0 ? "none" : "table-row";
+        }
+        
+        // Hitung ulang total setelah filter
+        calculateTotal();
     }
     
-        document.addEventListener("DOMContentLoaded", function() {
-            const today = new Date();
-            const currentMonth = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0'); // Format YYYY-MM
+    document.addEventListener("DOMContentLoaded", function() {
+        const today = new Date();
+        const currentMonth = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0'); // Format YYYY-MM
+        
+        // Set nilai default untuk filter bulan
+        document.getElementById("filterBulan").value = currentMonth;
 
-            const rows = document.querySelectorAll(".expense-row");
-            let hasData = false;
+        const rows = document.querySelectorAll(".expense-row");
+        let hasData = false;
 
-            rows.forEach(row => {
-                if (row.getAttribute("data-date") === currentMonth) {
-                    row.style.display = "table-row";
-                    hasData = true;
-                } else {
-                    row.style.display = "none";
-                }
-            });
-
-            // Jika tidak ada data yang sesuai, tampilkan pesan "Tidak ada pengeluaran"
-            const noDataRow = document.getElementById("noDataRow");
-            if (noDataRow) {
-                noDataRow.style.display = hasData ? "none" : "table-row";
+        rows.forEach(row => {
+            if (row.getAttribute("data-date") === currentMonth) {
+                row.style.display = "table-row";
+                hasData = true;
+            } else {
+                row.style.display = "none";
             }
         });
 
-        document.addEventListener('alpine:init', () => {
-        Alpine.plugin(collapse);
+        // Jika tidak ada data yang sesuai, tampilkan pesan "Tidak ada pengeluaran"
+        const noDataRow = document.getElementById("noDataRow");
+        if (noDataRow) {
+            noDataRow.style.display = hasData ? "none" : "table-row";
+        }
+        
+        // Hitung total pada saat halaman dimuat
+        calculateTotal();
     });
 
     function printTable() {

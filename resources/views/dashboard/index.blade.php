@@ -18,7 +18,9 @@
         ->get();
 
     // Format data untuk chart.js
-    $expenseLabels = $expenseData->pluck('date')->toArray(); // Ambil tanggal
+    $expenseLabels = $expenseData->pluck('date')->map(function ($date) {
+    return \Carbon\Carbon::parse($date)->format('Y-m-d');
+})->toArray();
     $expenseValues = $expenseData->pluck('total')->toArray();
 
     // Get the number of orders for the current month
@@ -157,7 +159,7 @@
         <!-- Cards Section -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6 animate__animated animate__fadeInUp">
             <!-- Pemasukan -->
-            <!-- Pemasukan -->
+            
             <div class="bg-white p-4 rounded-lg shadow-md flex items-center card-hover">
                 <i class="bx bx-wallet text-3xl sm:text-4xl mr-2 sm:mr-4 icon-bounce"></i>
                 <div>
@@ -228,9 +230,12 @@
         </div>
     </div>    
 
-  <!-- Chart Script -->
-  <script>
   
+  
+</body>
+</html>
+
+<script>
     document.addEventListener("DOMContentLoaded", function() {
          const ctx = document.getElementById('financeChart').getContext('2d');
 
@@ -241,62 +246,83 @@
          const rawIncomeValues = @json($incomeValues); // Jumlah pemasukan sesuai tanggal
 
          // Fungsi untuk mengelompokkan data berdasarkan periode waktu
-         function groupDataByTime(period) {
-             const groupedLabels = [];
-             const groupedExpenseValues = {};
-             const groupedIncomeValues = {};
-             
-             rawExpenseLabels.forEach((date, index) => {
-                 let key;
-                 const dateObj = new Date(date);
+function groupDataByTime(period) {
+    const groupedLabels = [];
+    const groupedExpenseValues = {};
+    const groupedIncomeValues = {};
+    
+    // First, collect all unique dates from both datasets
+    const allDates = new Set([...rawExpenseLabels, ...rawIncomeLabels]);
+    
+    // Process expense data
+    rawExpenseLabels.forEach((date, index) => {
+        let key;
+        const dateObj = new Date(date);
 
-                 if (period === "weekly") {
-                     key = `Minggu ${getWeekNumber(dateObj)}`;
-                 } else if (period === "monthly") {
-                     key = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
-                 } else if (period === "yearly") {
-                     key = `${dateObj.getFullYear()}`;
-                 } else {
-                     key = date; // Harian (default)
-                 }
+        if (period === "weekly") {
+            key = `Minggu ${getWeekNumber(dateObj)}`;
+        } else if (period === "monthly") {
+            key = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+        } else if (period === "yearly") {
+            key = `${dateObj.getFullYear()}`;
+        } else {
+            key = date; // Daily (default)
+        }
 
-                 if (!groupedExpenseValues[key]) {
-                     groupedExpenseValues[key] = 0;
-                     groupedLabels.push(key);
-                 }
-                 groupedExpenseValues[key] += rawExpenseValues[index];
-             });
+        if (!groupedExpenseValues[key]) {
+            groupedExpenseValues[key] = 0;
+            if (!groupedLabels.includes(key)) {
+                groupedLabels.push(key);
+            }
+        }
+        groupedExpenseValues[key] += rawExpenseValues[index];
+    });
 
-             rawIncomeLabels.forEach((date, index) => {
-                 let key;
-                 const dateObj = new Date(date);
+    // Process income data
+    rawIncomeLabels.forEach((date, index) => {
+        let key;
+        const dateObj = new Date(date);
 
-                 if (period === "weekly") {
-                     key = `Minggu ${getWeekNumber(dateObj)}`;
-                 } else if (period === "monthly") {
-                     key = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
-                 } else if (period === "yearly") {
-                     key = `${dateObj.getFullYear()}`;
-                 } else {
-                     key = date; // Harian (default)
-                 }
+        if (period === "weekly") {
+            key = `Minggu ${getWeekNumber(dateObj)}`;
+        } else if (period === "monthly") {
+            key = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+        } else if (period === "yearly") {
+            key = `${dateObj.getFullYear()}`;
+        } else {
+            key = date; // Daily (default)
+        }
 
-                 if (!groupedIncomeValues[key]) {
-                     groupedIncomeValues[key] = 0;
-                     if (!groupedLabels.includes(key)) {
-                         groupedLabels.push(key);
-                     }
-                 }
-                 groupedIncomeValues[key] += rawIncomeValues[index];
-             });
+        if (!groupedIncomeValues[key]) {
+            groupedIncomeValues[key] = 0;
+            if (!groupedLabels.includes(key)) {
+                groupedLabels.push(key);
+            }
+        }
+        groupedIncomeValues[key] += rawIncomeValues[index];
+    });
 
-             return {
-                 labels: groupedLabels,
-                 expenseValues: groupedLabels.map(label => groupedExpenseValues[label] || 0),
-                 incomeValues: groupedLabels.map(label => groupedIncomeValues[label] || 0)
-             };
-         }
+    // Sort the labels chronologically
+    if (period === "daily") {
+        groupedLabels.sort((a, b) => new Date(a) - new Date(b));
+    } else if (period === "weekly") {
+        // Sort by week number (extract number after "Minggu ")
+        groupedLabels.sort((a, b) => {
+            const weekA = parseInt(a.split(' ')[1]);
+            const weekB = parseInt(b.split(' ')[1]);
+            return weekA - weekB;
+        });
+    } else if (period === "monthly" || period === "yearly") {
+        // These are already in correct format for string sorting
+        groupedLabels.sort();
+    }
 
+    return {
+        labels: groupedLabels,
+        expenseValues: groupedLabels.map(label => groupedExpenseValues[label] || 0),
+        incomeValues: groupedLabels.map(label => groupedIncomeValues[label] || 0)
+    };
+}
          function getWeekNumber(d) {
              const oneJan = new Date(d.getFullYear(), 0, 1);
              const numberOfDays = Math.floor((d - oneJan) / (24 * 60 * 60 * 1000));
@@ -529,10 +555,10 @@
             el.style.display = 'block';
         });
         
-        // Print
+       
         window.print();
         
-        // Hide print-only elements again
+        
         document.querySelectorAll('.print-only').forEach(el => {
             el.style.display = 'none';
         });
@@ -558,6 +584,27 @@
             });
         });
     });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const fadeElements = document.querySelectorAll('.welcome-card, .card-hover, .chart-container');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-10');
+                } else {
+                    entry.target.classList.add('opacity-0', 'translate-y-10');
+                    entry.target.classList.remove('opacity-100', 'translate-y-0');
+                }
+            });
+        }, {
+            threshold: 0.1,
+        });
+
+        fadeElements.forEach((el) => {
+            el.classList.add('opacity-0', 'translate-y-10', 'transition', 'duration-700', 'ease-in-out');
+            observer.observe(el);
+        });
+    });
  </script>
-</body>
-</html>

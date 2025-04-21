@@ -22,4 +22,19 @@ class ContactController extends Controller
 
         return back()->with('success', 'Pesan Anda telah berhasil dikirim dan disimpan.');
     }
+
+        public function index()
+    {
+        $contacts = Contact::all();
+
+        return view('dashboard.contact.index', compact('contacts'));
+    }
+
+    public function destroy(Contact $contact): RedirectResponse
+    {
+        $contact->delete();
+        
+        return redirect()->route('dashboard.contact.index')
+            ->with('success', 'Pesan kontak berhasil dihapus.');
+    }
 }

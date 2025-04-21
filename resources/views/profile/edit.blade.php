@@ -55,7 +55,7 @@
             <section class="p-6 bg-violet text-gray-800 rounded-xl shadow-lg mb-6">
                 <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
                     <!-- Avatar -->
-                    <div class="relative w-24 h-24 rounded-full bg-white/60 flex items-center justify-center text-2xl font-bold shadow-md">
+                    <div class="relative w-24 h-24 rounded-full bg-white/100 flex items-center justify-center text-2xl font-bold shadow-md">
                         @if(auth()->user()->avatar)
                             <img src="{{ auth()->user()->avatar }}" alt="User Avatar" class="w-full h-full rounded-full object-cover">
                         @else
@@ -80,7 +80,7 @@
 
             <!-- Forms Section -->
             <section class="bg-gray-50 rounded-xl shadow-md overflow-hidden">
-                <div class=" bg-gradient-to-r from-fuchsia-600 to-fuchsia-700 px-6 py-4">
+                <div class=" bg-gradient-to-tr from-[#D5A4CF] to-[#B689B0] px-6 py-4">
                     <h2 class="text-xl font-bold text-white">Update Your Information</h2>
                 </div>
 

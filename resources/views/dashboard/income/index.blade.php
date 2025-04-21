@@ -1,4 +1,3 @@
-{{-- filepath: /c:/laragon/www/Tobapos/resources/views/dashboard/transactions/income.blade.php --}}
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -78,10 +77,10 @@
                         </tr>
                     </tbody>
                 </table>
-            </div>
-
-            <div class="mt-4">
-                <h3 class="text-xl md:text-2xl font-bold">Total Pemasukan: Rp {{ number_format($totalIncome, 2) }}</h3>
+                
+                <div class="mt-4">
+                    <h3 class="text-xl md:text-2xl font-bold">Total Pemasukan: <span class="total-income">Rp {{ number_format($totalIncome, 2) }}</span></h3>
+                </div>
             </div>
         </div>
     </div>
@@ -92,6 +91,7 @@
             let selectedMonth = document.getElementById("filterBulan").value;
             let rows = document.querySelectorAll(".expense-row");
             let visibleRows = 0;
+            let totalIncome = 0;
 
             rows.forEach(row => {
                 let rowDate = row.getAttribute("data-date");
@@ -106,10 +106,14 @@
                 }
 
                 row.style.display = showRow ? "table-row" : "none";
-                if (showRow) visibleRows++;
+                if (showRow) {
+                    visibleRows++;
+                    totalIncome += parseFloat(row.querySelector("td:nth-child(2)").textContent.replace(/[^\d.-]/g, ""));
+                }
             });
 
             document.getElementById("noDataRow").style.display = visibleRows ? "none" : "table-row";
+            document.querySelector(".total-income").textContent = `Rp ${totalIncome.toLocaleString('id-ID', { minimumFractionDigits: 2 })}`;
         }
 
         function printTable() {
@@ -121,11 +125,13 @@
             const currentMonth = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0');
             const rows = document.querySelectorAll(".expense-row");
             let hasData = false;
+            let totalIncome = 0;
 
             rows.forEach(row => {
                 if (row.getAttribute("data-date") === currentMonth) {
                     row.style.display = "table-row";
                     hasData = true;
+                    totalIncome += parseFloat(row.querySelector("td:nth-child(2)").textContent.replace(/[^\d.-]/g, ""));
                 } else {
                     row.style.display = "none";
                 }
@@ -135,6 +141,8 @@
             if (noDataRow) {
                 noDataRow.style.display = hasData ? "none" : "table-row";
             }
+
+            document.querySelector(".total-income").textContent = `Rp ${totalIncome.toLocaleString('id-ID', { minimumFractionDigits: 2 })}`;
         });
     </script>
 </body>

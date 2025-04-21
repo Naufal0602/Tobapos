@@ -11,8 +11,8 @@
         class="fixed inset-y-0 left-0 shadow-md w-60 z-50 bg-gradient-to-tr from-[#D5A4CF] to-[#B689B0] flex flex-col h-screen transition-transform duration-300 md:translate-x-0">
         <!-- Header Section -->
         <div class="px-4 py-4 flex justify-between items-center">
-            <h1 class="font-bold w-32 h-auto xl:text">
-                <img src="{{ asset('img/logo-v3.png') }}" alt="Logo" class="mx-auto ml-6 ">
+            <h1 class="font-bold w-32 h-auto xl:text bg-white rounded-full ml-6">
+                <img src="{{ asset('img/logo-v3.png') }}" alt="Logo" class="mx-auto">
             </h1>
             <!-- Close Button in Mobile -->
             <button @click="openSidebar = false" class="md:hidden text-black text-2xl">
@@ -50,6 +50,12 @@
                         <i class="bx bx-edit-alt text-3xl mr-3"></i> Company Profile
                     </a>
                 </li>
+
+                <li>
+                    <a href="{{ route('dashboard.contact.index') }}" class="flex items-center py-3 px-4 rounded-xl font-semibold text-sm text-black hover:bg-white hover:text-yellow-900">
+                        <i class="bx bxs-envelope text-3xl mr-3"></i> FeedBack
+                    </a>
+                </li>
                 
                 <li x-data="{ open: false }">
                     <a @click="open = !open" class="flex items-center justify-between py-3 px-4 rounded-xl font-semibold text-sm text-black hover:bg-white hover:text-yellow-900 cursor-pointer">
@@ -76,7 +82,7 @@
 
         <!-- Logout Section -->
         <div class="p-5">
-            <a href="{{ route('logout') }}" class="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-gray-100 text-purple-500 hover:text-black text-sm ml-10 font-semibold transition">
+            <a href="{{ route('logout') }}" onclick="confirmLogout(event)" class="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-gray-100 text-purple-500 hover:text-black text-sm ml-10 font-semibold transition">
                 <i class='bx bx-log-out'></i>
                 <span class="font-bold text-sm ml-2">Logout</span>
             </a>
@@ -120,6 +126,21 @@
         });
     }
 
+    function confirmLogout(event) {
+        event.preventDefault(); // Mencegah aksi default tombol
+        Swal.fire({
+            title: 'Konfirmasi Logout',
+            text: 'Apakah Anda yakin ingin logout?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Logout',
+            cancelButtonText: 'Batal',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "{{ route('logout') }}";
+            }
+        });
+    }
     document.addEventListener('DOMContentLoaded', updateCartCount);
 </script>
 

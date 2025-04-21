@@ -124,7 +124,7 @@ return [
     ],
 
     'PDF' => Barryvdh\DomPDF\Facade\Pdf::class,
-
+    'printer_name' => env('PRINTER_NAME', 'POS-58l'),
 
 
 ];

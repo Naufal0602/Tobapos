@@ -12,8 +12,8 @@
   <div class="w-full max-w-4xl flex flex-col md:flex-row bg-white shadow-lg rounded-2xl overflow-hidden animate-slideUp">
       
       <!-- Bagian Kiri: Logo & Welcome (Hanya Muncul di Desktop) -->
-      <div class="hidden md:flex flex-1 flex-col items-center justify-center text-white bg-gradient-to-t   from-purple-900 to-white p-10">
-          <img src="{{ asset('img/logo-v3.png') }}" alt="Logo" class="w-40 md:w-60 mb-4 animate-bounceSlow">
+      <div class="hidden md:flex flex-1 flex-col items-center justify-center text-white bg-gradient-to-t from-purple-900 to-white p-10">
+          <img src="{{ asset('img/logo-v3.png') }}" alt="Logo" class="w-40 md:w-60 mb-4">
           <h2 class="text-3xl font-bold">Welcome Back!</h2>
       </div>
 
