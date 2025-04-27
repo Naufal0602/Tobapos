@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Log;
+
 
 class PasswordResetLinkController extends Controller
 {
@@ -25,21 +27,31 @@ class PasswordResetLinkController extends Controller
      * @throws ValidationException
      */
     public function store(Request $request): RedirectResponse
-    {
-        $request->validate([
-            'email' => ['required', 'email'],
-        ]);
-
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
-
-        return $status == Password::RESET_LINK_SENT
-            ? back()->with('status', __($status))
-            : back()->withInput($request->only('email'))
-                ->withErrors(['email' => __($status)]);
-    }
+{
+    // First determine if the input is email or username
+    $login_by = filter_var($request->input('login_by'), FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+    $request->merge([$login_by => $request->input('login_by')]);
+    
+    // Then validate based on which one it is
+    $request->validate([
+        'email' => 'required_without:username|email|exists:users,email',
+        'username' => 'required_without:email|string|exists:users,username'
+    ]);
+    
+    // Debug line - consider adding this temporarily
+    Log::info('Sending password reset for ' . $login_by . ': ' . $request->input($login_by));
+    
+    // Send the reset link
+    $status = Password::sendResetLink(
+        $request->only($login_by)
+    );
+    
+    // Another debug line
+    Log::info('Password reset status: ' . $status);
+    
+    return $status == Password::RESET_LINK_SENT
+        ? back()->with('status', __($status))
+        : back()->withInput($request->only('login_by'))
+            ->withErrors(['login_by' => __($status)]);
+}
 }

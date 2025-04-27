@@ -8,6 +8,10 @@ use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Http\Request;
+
 
 class ProductController extends Controller
 {
@@ -109,4 +113,56 @@ class ProductController extends Controller
 
         return redirect()->route('dashboard.products.index')->with('success', 'Product deleted successfully.');
     }
+
+
+ 
+    public function getAvailablePrinters()
+    {
+        $printers = [];
+    
+        // Untuk Windows menggunakan COM
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            try {
+                $WshNetwork = new \COM("WScript.Network");
+                $printerConnections = $WshNetwork->EnumPrinterConnections();
+    
+                // Ambil hanya nama printer
+                for ($i = 0; $i < count($printerConnections); $i += 2) {
+                    $printers[] = $printerConnections[$i + 1];
+                }
+    
+                // Log daftar printer
+                Log::info('Daftar printer yang ditemukan: ' . implode(', ', $printers));
+            } catch (\Exception $e) {
+                Log::error('Gagal mendapatkan daftar printer: ' . $e->getMessage());
+            }
+        }
+    
+        return response()->json($printers);
+    }
+
+
+public function setPrinter(Request $request)
+{
+    $request->validate([
+        'printer_name' => 'required|string',
+    ]);
+
+    $printerName = $request->input('printer_name');
+
+    // Update .env file
+    $envPath = base_path('.env');
+    if (file_exists($envPath)) {
+        file_put_contents($envPath, preg_replace(
+            '/^PRINTER_NAME=.*$/m',
+            "PRINTER_NAME=\"$printerName\"",
+            file_get_contents($envPath)
+        ));
+    }
+
+    // Clear config cache
+    Artisan::call('config:clear');
+
+    return redirect()->back()->with('success', 'Printer berhasil diubah!');
+}
 }

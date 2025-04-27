@@ -1,8 +1,16 @@
+<?php
+  use App\Models\printers;
+  
+  // Mendapatkan data printer langsung di view
+  $printers = printers::all();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Kelola Product</title>
     <link rel="icon" href="{{ asset('img/logo_v2.png')}}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,6 +24,9 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.9/css/responsive.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.9/js/dataTables.responsive.min.js"></script>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
     <link rel="stylesheet" href="{{ asset('input.css') }}">
 
@@ -90,12 +101,12 @@
         <!-- Header Section - Responsive layout -->
         <div class="mb-4 p-3 md:p-4 shadow-md bg-white rounded-lg">
             <div class="flex flex-col md:flex-row justify-between items-center gap-3">
-                <h2 class="text-2xl md:text-3xl font-mono">Kelola Barang</h2>
+                <h2 class="text-2xl md:text-3xl font-extrabold">Kelola Barang</h2>
                 <div class="flex flex-wrap gap-2 md:space-x-5">
                     <a href="{{ route('dashboard.products.create') }}" class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-sm md:text-base flex items-center justify-center">
                         <i class="bx bx-plus mr-1"></i> Tambah Barang
                     </a>
-                    <button onclick="printTable()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm md:text-base flex items-center justify-center">
+                    <button type="button" onclick="printTable()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm md:text-base flex items-center justify-center">
                         <i class="bx bx-printer mr-1"></i> Cetak PDF
                     </button>
                 </div>
@@ -115,7 +126,7 @@
         @endif
         
         <!-- Table Section -->
-        <div class="bg-white p-3 md:p-6 rounded shadow">
+        <div class="bg-white p-3 md:p-6 rounded shadow mb-6">
             <div class="mb-4">
                 <h2 class="text-xl md:text-2xl font-mono">Data Barang</h2>
             </div>
@@ -156,10 +167,11 @@
                                     </a>
                             
                                     <!-- Tombol Hapus -->
-                                    <form action="{{ route('dashboard.products.destroy', $product) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus produk ini?');" class="w-full md:w-auto">
+                                    <form action="{{ route('dashboard.products.destroy', $product) }}" method="POST" class="w-full md:w-auto">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" 
+                                        <button type="button" 
+                                            onclick="confirmDelete(this.form, '{{ $product->name }}')"
                                             class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 md:px-3 md:py-2 rounded-md text-xs md:text-sm flex items-center w-full justify-center">
                                             <i class="bx bxs-trash mr-1"></i> Hapus
                                         </button>
@@ -207,6 +219,83 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Printer Management Section - Flexbox Layout -->
+        <div class="flex flex-col md:flex-row gap-6">
+            <!-- Pilih Printer Section -->
+            <div class="bg-gray-100 rounded-2xl p-5 shadow-sm flex-1">
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-5">
+                    <h3 class="text-gray-700 font-medium text-lg">Pilih Printer</h3>
+                    <a href="#" class="text-green-500 text-sm font-medium">Lihat bantuan</a>
+                </div>
+                
+                <!-- Form content -->
+                <form method="POST" action="{{ route('dashboard.products.setPrinter') }}">
+                    @csrf
+                    <div class="mb-5">
+                        <div class="flex items-center text-sm text-gray-500 mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                            </svg>
+                            <span>Daftar printer yang tersedia</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="w-full">
+                                <select name="printer_name" id="printer_name" class="w-full bg-white border border-gray-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Pilih printer</option>
+                                    @foreach($printers as $printer)
+                                        <option value="{{ $printer->nama_printer }}">{{ $printer->nama_printer }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg w-full transition duration-200" onclick="setPrinter(event, this.form)">
+                        Simpan
+                    </button>
+                </form>
+            </div>
+
+            <!-- Kelola Printer Section -->
+            <div class="bg-gray-100 rounded-2xl p-5 shadow-sm flex-1">
+                <!-- Tambah Printer Baru -->
+                <div class="mb-6">
+                    <h4 class="text-gray-700 font-medium mb-3">Tambah Printer Baru</h4>
+                    <form method="POST" action="{{ route('dashboard.printers.store') }}" class="flex gap-2">
+                        @csrf
+                        <input type="text" name="nama_printer" placeholder="Nama printer baru" 
+                            class="flex-1 bg-white border border-gray-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-3 rounded-lg transition duration-200" onclick="addPrinter(event, this.form)">
+                            Tambah
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Daftar Printer -->
+                <div class="border-t pt-4">
+                    <h4 class="text-gray-700 font-medium mb-3">Kelola Printer</h4>
+                    <div class="space-y-2">
+                        @foreach($printers as $printer)
+                            <div class="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-200">
+                                <span>{{ $printer->nama_printer }}</span>
+                                <form method="POST" action="{{ route('dashboard.printers.destroy', $printer->id) }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" onclick="confirmDeletePrinter(this.form, '{{ $printer->nama_printer }}')" class="text-red-500 hover:text-red-700">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -233,6 +322,15 @@
             $('#sidebarToggle').click(function() {
                 $('.sidebar-container').toggleClass('open');
             });
+
+            // Check for flash messages from the server
+            @if(session('success'))
+                showSuccessAlert("{{ session('success') }}");
+            @endif
+
+            @if(session('error'))
+                showErrorAlert("{{ session('error') }}");
+            @endif
         });
         
         // Completely separate print function that uses a hidden clean table
@@ -298,6 +396,186 @@
                 printWindow.close();
             }, 500);
         }
+
+        // Sweet Alert helper functions
+        function showSuccessAlert(message) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: message,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        }
+
+        function showErrorAlert(message) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: message
+            });
+        }
+
+        // Confirm delete product with SweetAlert - FIXED VERSION
+        function confirmDelete(form, productName) {
+            Swal.fire({
+                title: 'Konfirmasi Hapus',
+                text: `Apakah Anda yakin ingin menghapus produk "${productName}"?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Important: Submit the form directly
+                    form.submit();
+                }
+            });
+        }
+
+        // Confirm delete printer with SweetAlert - FIXED VERSION
+        function confirmDeletePrinter(form, printerName) {
+            Swal.fire({
+                title: 'Konfirmasi Hapus',
+                text: `Apakah Anda yakin ingin menghapus printer "${printerName}"?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Important: Submit the specific form directly
+                    form.submit();
+                }
+            });
+        }
+
+        // Add printer with SweetAlert - FIXED VERSION
+        function addPrinter(event, form) {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const printerName = formData.get('nama_printer');
+
+            if (!printerName) {
+                showErrorAlert('Nama printer tidak boleh kosong!');
+                return;
+            }
+
+            // Regular form submission with SweetAlert on success
+            Swal.fire({
+                title: 'Menambahkan Printer...',
+                text: 'Mohon tunggu sebentar',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                    
+                    // Submit form through AJAX
+                    $.ajax({
+                        url: form.action,
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: `Printer "${printerName}" berhasil ditambahkan`,
+                                timer: 1500
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        },
+                        error: function(xhr) {
+                            let errorMessage = 'Terjadi kesalahan saat menambahkan printer';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                            showErrorAlert(errorMessage);
+                        }
+                    });
+                }
+            });
+        }
+
+        // Set printer with SweetAlert - FIXED VERSION
+        function setPrinter(event, form) {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const printerName = formData.get('printer_name');
+
+            if (!printerName) {
+                showErrorAlert('Silakan pilih printer terlebih dahulu');
+                return;
+            }
+
+            // Regular form submission with SweetAlert on success
+            Swal.fire({
+                title: 'Menyimpan...',
+                text: 'Mohon tunggu sebentar',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                    
+                    // Submit form through AJAX
+                    $.ajax({
+                        url: form.action,
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: `Printer "${printerName}" berhasil dipilih`,
+                                timer: 1500
+                            });
+                        },
+                        error: function(xhr) {
+                            let errorMessage = 'Terjadi kesalahan saat memilih printer';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                            showErrorAlert(errorMessage);
+                        }
+                    });
+                }
+            });
+        }
+
+        // Load printers from API
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('{{ route('dashboard.products.printers') }}')
+                .then(response => response.json())
+                .then(printers => {
+                    console.log('Daftar printer:', printers); // Debug daftar printer
+                    const printerSelect = document.getElementById('printer_name');
+                    printerSelect.innerHTML = '<option value="">Pilih printer</option>'; // Reset dropdown
+
+                    printers.forEach(printer => {
+                        const option = document.createElement('option');
+                        option.value = printer;
+                        option.textContent = printer;
+                        printerSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Gagal memuat daftar printer:', error);
+                });
+        });
     </script>
 </body>
 </html>

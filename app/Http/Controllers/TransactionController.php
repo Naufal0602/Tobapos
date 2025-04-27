@@ -125,7 +125,7 @@ class TransactionController extends Controller
     }
 
 
-// app/Http/Controllers/TransactionController.php
+
 
 public function printReceipt(Request $request)
 {
@@ -178,70 +178,92 @@ public function printReceipt(Request $request)
     }
 }
 
+
 private function connectToPrinter()
 {
     try {
         $profile = CapabilityProfile::load("simple");
-        
-        // Try different printer connection methods
-        $printerNames = [
-            config('app.printer_name', 'POS-58'),  // Nama printer dari config
-            "POS-58D",                        // Nama alternatif
-            "smb://localhost/POS-58",             // Shared printer
-        ];
 
-        foreach ($printerNames as $printerName) {
-            try {
-                Log::info("Mencoba mencetak struk ke printer: {$printerName}");
-                $connector = new WindowsPrintConnector($printerName, 9100, 30); // Timeout 30 detik
-                return new Printer($connector, $profile);
-            } catch (\Exception $e) {
-                Log::info("Gagal menghubungkan menggunakan nama printer: $printerName - " . $e->getMessage());
-                continue;
-            }
+        // Ambil nama printer dari konfigurasi
+        $printerName = config('app.printer_name', 'POS-58');
+
+        if (!$printerName) {
+            throw new \Exception('Printer tidak ditemukan. Menggunakan printer default.');
         }
 
-        return null;
+        // Coba koneksi ke printer
+        $connector = new WindowsPrintConnector($printerName);
+        return new Printer($connector, $profile);
     } catch (\Exception $e) {
         Log::error('Kesalahan koneksi printer: ' . $e->getMessage());
         return null;
     }
 }
-
 private function printReceiptContent($printer, $data)
 {
     try {
-        // Header
+        // Set character width for 55mm printer
+        $lineWidth = 32; // Standard 55mm printer width in characters
+        
+        // Logo/Brand - small logo at top left
+        $printer->setJustification(Printer::JUSTIFY_LEFT);
+        // Store name
         $printer->setJustification(Printer::JUSTIFY_CENTER);
         $printer->setEmphasis(true);
         $printer->text("ECEU BAKO\n");
         $printer->setEmphasis(false);
+        
+        // Address
         $printer->text("Jl. Pintu Ledeng, Ciomas\n");
         $printer->text("Kab. Bogor, Jawa Barat 16610\n");
-        $printer->text("====================\n");
-        // Items
+        
+        // Divider with dashes
+        $printer->text("================================\n");
+        
+        // Items with price on the right
         $printer->setJustification(Printer::JUSTIFY_LEFT);
         foreach ($data['items'] as $item) {
             $itemTotal = $item['price'] * $item['quantity'];
-            $printer->text($item['quantity'] . "x " . $item['name'] . "\n");
-            $printer->setJustification(Printer::JUSTIFY_RIGHT);
-            $printer->text("Rp" . number_format($itemTotal, 0, ',', '.') . "\n");
-            $printer->setJustification(Printer::JUSTIFY_LEFT);
+            $leftText = $item['quantity'] . "x " . $item['name'];
+            $rightText = "Rp" . number_format($itemTotal, 0, ',', '.');
+            
+            $spaces = $lineWidth - (mb_strlen($leftText) + mb_strlen($rightText));
+            $printer->text($leftText . str_repeat(" ", $spaces > 0 ? $spaces : 1) . $rightText . "\n");
         }
-
-        // Payment info
-        $printer->text("\n");
-        $this->printPaymentDetails($printer, $data);
-
-        // Footer
+        
+        // Divider with dashes
+        $printer->text("================================\n");
+        
+        // Payment details aligned with label on left, value on right
+        $this->printPaymentDetailAligned($printer, "Metode Bayar:", 
+            $this->getPaymentMethodText($data['payment_method']), $lineWidth);
+        $this->printPaymentDetailAligned($printer, "Subtotal:", 
+            "Rp" . number_format($data['total'], 0, ',', '.'), $lineWidth);
+        
+        if ($data['payment_method'] === "cash") {
+            $this->printPaymentDetailAligned($printer, "Cash:", 
+                "Rp" . number_format($data['amount_paid'], 0, ',', '.'), $lineWidth);
+            $this->printPaymentDetailAligned($printer, "Kembali:", 
+                "Rp" . number_format($data['change'], 0, ',', '.'), $lineWidth);
+        } else {
+            // For non-cash payments like in your example (Shopee Pay)
+            $this->printPaymentDetailAligned($printer, "Cash:", 
+                "Rp" . number_format($data['total'], 0, ',', '.'), $lineWidth);
+            $this->printPaymentDetailAligned($printer, "Kembali:", 
+                "Rp0", $lineWidth);
+        }
+        
+        // Divider with dashes
+        $printer->text("================================\n");
+        
+        // Footer message - centered
         $printer->setJustification(Printer::JUSTIFY_CENTER);
-        $printer->text("\n====================\n");
-        $printer->setEmphasis(true);
         $printer->text("Terima kasih\n");
         $printer->text("telah berbelanja\n");
-        $printer->setEmphasis(false);
-        $printer->text("====================\n");
-        $printer->text(date("Y-m-d H:i:s") . "\n");
+        
+        // Final divider
+        $printer->text("================================\n");
+        
         // Finalize
         $printer->cut();
         $printer->close();
@@ -254,31 +276,13 @@ private function printReceiptContent($printer, $data)
     }
 }
 
-private function printPaymentDetails($printer, $data)
+private function printPaymentDetailAligned($printer, $label, $value, $lineWidth)
 {
-    $paymentMethod = $this->getPaymentMethodText($data['payment_method']);
+    // Calculate spaces needed for alignment
+    $spaces = $lineWidth - (mb_strlen($label) + mb_strlen($value));
     
-    $printer->setJustification(Printer::JUSTIFY_LEFT);
-    $printer->text("Metode Bayar: ");
-    $printer->setJustification(Printer::JUSTIFY_RIGHT);
-    $printer->text($paymentMethod . "\n");
-
-    $printer->setJustification(Printer::JUSTIFY_LEFT);
-    $printer->text("TOTAL: ");
-    $printer->setJustification(Printer::JUSTIFY_RIGHT);
-    $printer->text("Rp" . number_format($data['total'], 0, ',', '.') . "\n");
-
-    if ($data['payment_method'] === "cash") {
-        $printer->setJustification(Printer::JUSTIFY_LEFT);
-        $printer->text("BAYAR: ");
-        $printer->setJustification(Printer::JUSTIFY_RIGHT);
-        $printer->text("Rp" . number_format($data['amount_paid'], 0, ',', '.') . "\n");
-
-        $printer->setJustification(Printer::JUSTIFY_LEFT);
-        $printer->text("KEMBALI: ");
-        $printer->setJustification(Printer::JUSTIFY_RIGHT);
-        $printer->text("Rp" . number_format($data['change'], 0, ',', '.') . "\n");
-    }
+    // Print with proper alignment (label left, value right)
+    $printer->text($label . str_repeat(" ", $spaces > 0 ? $spaces : 1) . $value . "\n");
 }
 
 private function getPaymentMethodText($method)
@@ -286,6 +290,7 @@ private function getPaymentMethodText($method)
     switch ($method) {
         case 'shopee_pay': return 'Shopee Pay';
         case 'dana': return 'DANA';
+        case 'cash': return 'Tunai';
         default: return 'Tunai';
     }
 }

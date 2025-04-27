@@ -8,6 +8,7 @@
     <script src="https://unpkg.com/feather-icons"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('input.css') }}">
     <style>
@@ -34,7 +35,7 @@
         }
     </style>
 </head>
-<body class="font-sans" style="background:#F5E6F0;" x-data="{ showModal: false, modalImage: '' }">
+<body class="font-sans" style="background:#F5E6F0;" x-data="{ showModal: false, modalImage: '', modalExpense: null }">
     @include('layouts.sidebar')
     @include('layouts.navbar')
 
@@ -47,20 +48,26 @@
             </div>
         </div>
 
-        <div class="mb-4 flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4">
-            <select id="filterHari" class="px-4 py-2 border rounded-lg shadow-md">
-                <option value="">Semua Hari</option>
-                <option value="Monday">Senin</option>
-                <option value="Tuesday">Selasa</option>
-                <option value="Wednesday">Rabu</option>
-                <option value="Thursday">Kamis</option>
-                <option value="Friday">Jumat</option>
-                <option value="Saturday">Sabtu</option>
-                <option value="Sunday">Minggu</option>
-            </select>
-            <input type="month" id="filterBulan" class="px-4 py-2 border rounded-lg shadow-md">
-            <button onclick="filterData()" class="bg-purple-500 text-white px-4 py-2 rounded-lg">Filter</button>
-        </div>
+            <div class="mb-4 flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4">
+                <select id="filterHari" class="px-4 py-2 border rounded-lg shadow-md">
+                    <option value="">Semua Hari</option>
+                    <option value="Monday">Senin</option>
+                    <option value="Tuesday">Selasa</option>
+                    <option value="Wednesday">Rabu</option>
+                    <option value="Thursday">Kamis</option>
+                    <option value="Friday">Jumat</option>
+                    <option value="Saturday">Sabtu</option>
+                    <option value="Sunday">Minggu</option>
+                </select>
+                <input type="month" id="filterBulan" class="px-4 py-2 border rounded-lg shadow-md">
+                <select id="filterKategori" class="px-4 py-2 border rounded-lg shadow-md">
+                    <option value="">Semua Kategori</option>
+                    <option value="Pribadi">Pribadi</option>
+                    <option value="Toko">Toko</option>
+                    
+                </select>
+                <button onclick="filterData()" class="bg-purple-500 text-white px-4 py-2 rounded-lg">Filter</button>
+            </div>
 
         <div class="bg-white px-3 py-2 rounded-lg shadow-md">
             <div class="overflow-x-auto" id="printArea">
@@ -89,17 +96,17 @@
                                     @if ($expense->receipt_image)
                                     <img src="{{ asset('storage/' . $expense->receipt_image) }}" 
                                     class="w-16 h-16 object-cover rounded-lg mx-auto cursor-pointer"
-                                    onclick="openModal('{{ asset('storage/' . $expense->receipt_image) }}')">
+                                    onclick="openDetailedModal('{{ asset('storage/' . $expense->receipt_image) }}', '{{ $expense->name }}', '{{ $expense->category }}', '{{ number_format($expense->amount, 0, ',', '.') }}', '{{ $expense->created_at->format('d M Y') }}')">
                                     @else
                                     
                                     @endif
                                 </td>
                                 <td class="border border-gray-300 px-4 py-2 text-center no-print">
                                     <a href="{{ route('dashboard.expenses.edit', $expense->id) }}" class="bg-yellow-500 text-white px-4 py-2 rounded-lg">Edit</a>
-                                    <form action="{{ route('dashboard.expenses.destroy', $expense->id) }}" method="POST" class="inline-block">
+                                    <button onclick="confirmDelete('{{ route('dashboard.expenses.destroy', $expense->id) }}')" class="bg-red-500 text-white px-4 py-2 rounded-lg mt-2 lg:mt-0">Hapus</button>
+                                    <form id="delete-form-{{ $expense->id }}" action="{{ route('dashboard.expenses.destroy', $expense->id) }}" method="POST" class="hidden">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg mt-2 lg:mt-0">Hapus</button>
                                     </form>
                                 </td>
                             </tr>
@@ -121,23 +128,73 @@
         </div>
     </div>
     
-    <!-- Modal gambar - Perbaikan untuk memastikan modal bekerja -->
+    <!-- Modal gambar yang ditingkatkan dengan informasi lengkap -->
     <div x-show="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-4 rounded-lg shadow-lg relative max-w-lg w-full">
-            <button @click="showModal = false" class="absolute top-2 right-2 text-xl font-bold">&times;</button>
-            <img :src="modalImage" class="max-w-full h-auto rounded-lg mx-auto">
+        <div class="bg-white p-6 rounded-lg shadow-lg relative max-w-2xl w-full">
+            <button @click="showModal = false" class="absolute top-3 right-3 text-2xl font-bold">&times;</button>
+            <div class="flex flex-col md:flex-row gap-6">
+                <div class="w-full md:w-1/2">
+                    <img :src="modalImage" class="max-w-full h-auto rounded-lg mx-auto">
+                </div>
+                <div class="w-full md:w-1/2 mt-4 md:mt-0">
+                    <h3 class="text-xl font-bold mb-4">Detail Pengeluaran</h3>
+                    <table class="w-full border-collapse">
+                        <tr>
+                            <td class="py-2 font-semibold">Nama:</td>
+                            <td class="py-2" x-text="modalExpense?.name"></td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 font-semibold">Kategori:</td>
+                            <td class="py-2" x-text="modalExpense?.category"></td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 font-semibold">Jumlah:</td>
+                            <td class="py-2">Rp <span x-text="modalExpense?.amount"></span></td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 font-semibold">Tanggal:</td>
+                            <td class="py-2" x-text="modalExpense?.date"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </body>
 </html>
-
 <script>
-    // Modal handler dengan JavaScript murni (tidak bergantung pada Alpine.js)
-    function openModal(imageSrc) {
+    // Modal handler untuk menampilkan gambar dan informasi
+    function openDetailedModal(imageSrc, name, category, amount, date) {
         // Alpine.js data access
         const alpineData = document.querySelector('body').__x.$data;
         alpineData.modalImage = imageSrc;
+        alpineData.modalExpense = {
+            name: name,
+            category: category,
+            amount: amount,
+            date: date
+        };
         alpineData.showModal = true;
+    }
+
+    // Fungsi konfirmasi hapus dengan SweetAlert
+    function confirmDelete(deleteUrl) {
+        Swal.fire({
+            title: 'Yakin ingin menghapus?',
+            text: "Data yang dihapus tidak dapat dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Extract the ID from the URL
+                const id = deleteUrl.split('/').pop();
+                document.getElementById(`delete-form-${id}`).submit();
+            }
+        });
     }
 
     function calculateTotal() {
@@ -177,35 +234,40 @@
     }
 
     function filterData() {
-        let selectedDay = document.getElementById("filterHari").value;
-        let selectedMonth = document.getElementById("filterBulan").value;
-        let rows = document.querySelectorAll(".expense-row");
-        let visibleRows = 0;
+    let selectedDay = document.getElementById("filterHari").value;
+    let selectedMonth = document.getElementById("filterBulan").value;
+    let selectedCategory = document.getElementById("filterKategori").value;
+    let rows = document.querySelectorAll(".expense-row");
+    let visibleRows = 0;
 
-        rows.forEach(row => {
-            let rowDate = row.getAttribute("data-date");
-            let rowDay = row.getAttribute("data-day");
-            let showRow = true;
+    rows.forEach(row => {
+        let rowDate = row.getAttribute("data-date");
+        let rowDay = row.getAttribute("data-day");
+        let rowCategory = row.querySelector("td:nth-child(2)").textContent.trim();
+        let showRow = true;
 
-            if (selectedMonth && rowDate !== selectedMonth) {
-                showRow = false;
-            }
-            if (selectedDay && rowDay !== selectedDay) {
-                showRow = false;
-            }
-
-            row.style.display = showRow ? "table-row" : "none";
-            if (showRow) visibleRows++;
-        });
-
-        const noDataRow = document.getElementById("noDataRow");
-        if (noDataRow) {
-            noDataRow.style.display = visibleRows > 0 ? "none" : "table-row";
+        if (selectedMonth && rowDate !== selectedMonth) {
+            showRow = false;
         }
-        
-        // Hitung ulang total setelah filter
-        calculateTotal();
+        if (selectedDay && rowDay !== selectedDay) {
+            showRow = false;
+        }
+        if (selectedCategory && rowCategory !== selectedCategory) {
+            showRow = false;
+        }
+
+        row.style.display = showRow ? "table-row" : "none";
+        if (showRow) visibleRows++;
+    });
+
+    const noDataRow = document.getElementById("noDataRow");
+    if (noDataRow) {
+        noDataRow.style.display = visibleRows > 0 ? "none" : "table-row";
     }
+    
+    // Hitung ulang total setelah filter
+    calculateTotal();
+}
     
     document.addEventListener("DOMContentLoaded", function() {
         const today = new Date();

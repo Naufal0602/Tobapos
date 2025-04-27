@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PrintController;
+use App\Http\Controllers\PrintersController;
 use Illuminate\Support\Facades\Route;
 //company_profile
 Route::get('/', [CompanyProfileController::class, 'index']);
@@ -20,10 +21,11 @@ Route::group(['prefix' => '/dashboard', 'middleware' => ['auth'], 'as' => 'dashb
     })->name('index');
 
     // Company Profile
-    Route::group(['prefix' => '/company-profile', 'as' => 'company_profile.'], static function () {
-        Route::get('/edit/{id}', [CompanyProfileController::class, 'edit'])->name('edit');
-        Route::put('/update', [CompanyProfileController::class, 'update'])->name('update');
-    });
+// Di routes/web.php
+Route::group(['prefix' => 'company-profile', 'as' => 'company_profile.'], function () {
+    Route::get('/edit', [CompanyProfileController::class, 'edit'])->name('edit'); // Tidak perlu parameter ID
+    Route::put('/update', [CompanyProfileController::class, 'update'])->name('update'); // Tidak perlu parameter ID
+});
 
     // Pengeluaran
     Route::resource('expenses', ExpenseController::class);
@@ -33,12 +35,16 @@ Route::group(['prefix' => '/dashboard', 'middleware' => ['auth'], 'as' => 'dashb
 
     // Product
     Route::resource('products', ProductController::class);
-
+    Route::get('/dashboard/products/printers', [ProductController::class, 'getAvailablePrinters'])->name('products.printers');
+    Route::post('/dashboard/products/set-printer', [ProductController::class, 'setPrinter'])->name('products.setPrinter');
     Route::get('/product/menu', function () {
         return view('dashboard.product.menu');
     })->name('products.menu');
-
     Route::post('/product/update-stock', [ProductController::class, 'updateStock']);
+
+    Route::get('/dashboard/products/index', [PrintersController::class , 'index']);
+    Route::post('/dashboard/printers', [PrintersController::class, 'store'])->name('printers.store');
+    Route::delete('/dashboard/printers/{id}', [PrintersController::class, 'destroy'])->name('printers.destroy');
 
 
     // Transaction

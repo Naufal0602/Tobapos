@@ -127,7 +127,7 @@
     }
 
     function confirmLogout(event) {
-        event.preventDefault(); // Mencegah aksi default tombol
+        event.preventDefault(); 
         Swal.fire({
             title: 'Konfirmasi Logout',
             text: 'Apakah Anda yakin ingin logout?',

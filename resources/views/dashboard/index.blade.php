@@ -7,9 +7,14 @@
     $totalProducts = Product::count();
 
     $currentMonth = now()->format('Y-m');
+    $currentYear = now()->format('Y');
+
+     // Get all expenses for current year (for monthly/yearly views)
+    $allExpenses = Expense::whereYear('created_at', $currentYear)->get();
+    $allTransactions = Transaction::whereYear('created_at', $currentYear)->get();
 
     $expenses = Expense::where('created_at', 'like', "$currentMonth%")->latest()->get();
-    $totalExpenses = Expense::where('created_at', 'like', "$currentMonth%")->sum('amount'); // Menghitung total amount dari expenses untuk bulan ini
+    $totalExpenses = Expense::where('created_at', 'like', "$currentMonth%")->sum('amount');
 
     $expenseData = Expense::selectRaw('DATE(created_at) as date, SUM(amount) as total')
         ->where('created_at', 'like', "$currentMonth%")
@@ -24,7 +29,10 @@
     $expenseValues = $expenseData->pluck('total')->toArray();
 
     // Get the number of orders for the current month
+   
+    // Get the number of orders for the current month
     $monthlyOrders = Transaction::where('created_at', 'like', "$currentMonth%")->count();
+    $monthlyIncome = Transaction::where('created_at', 'like', "$currentMonth%")->sum('total');
     $orderData = Transaction::selectRaw('DATE(created_at) as date, COUNT(*) as total')
         ->where('created_at', 'like', "$currentMonth%")
         ->groupBy('date')
@@ -155,6 +163,17 @@
                 <i class="bx bx-printer mr-2"></i> Print Dashboard
             </button>
         </div>  
+        @if(session('error'))
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 mb-3 rounded" role="alert">
+                <p>{{ session('error') }}</p>
+            </div>
+            @endif
+
+            @if(session('success'))
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 mb-3 rounded" role="alert">
+                <p>{{ session('success') }}</p>
+            </div>
+            @endif
     <div class="print-section">
         <!-- Cards Section -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6 animate__animated animate__fadeInUp">
@@ -224,6 +243,8 @@
             <canvas id="orderChart"></canvas>
         </div>
     </div> 
+
+    
         <!-- Print Date Footer -->
         <div class="mt-6 text-center text-gray-500 print-only" style="display: none;">
             <p>Printed on: <span id="print-date"></span></p>
@@ -234,109 +255,124 @@
   
 </body>
 </html>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-         const ctx = document.getElementById('financeChart').getContext('2d');
-
-         // Data asli dari Blade (diambil dari backend)
-         const rawExpenseLabels = @json($expenseLabels); // Format tanggal dari backend
-         const rawExpenseValues = @json($expenseValues); // Jumlah pengeluaran sesuai tanggal
-         const rawIncomeLabels = @json($incomeLabels); // Format tanggal dari backend
-         const rawIncomeValues = @json($incomeValues); // Jumlah pemasukan sesuai tanggal
-
-         // Fungsi untuk mengelompokkan data berdasarkan periode waktu
-function groupDataByTime(period) {
-    const groupedLabels = [];
-    const groupedExpenseValues = {};
-    const groupedIncomeValues = {};
+   document.addEventListener("DOMContentLoaded", function() {
+    const ctx = document.getElementById('financeChart').getContext('2d');
     
-    // First, collect all unique dates from both datasets
-    const allDates = new Set([...rawExpenseLabels, ...rawIncomeLabels]);
+    // Data from backend
+    const allExpenses = @json($allExpenses);
+    const allTransactions = @json($allTransactions);
     
-    // Process expense data
-    rawExpenseLabels.forEach((date, index) => {
-        let key;
-        const dateObj = new Date(date);
-
-        if (period === "weekly") {
-            key = `Minggu ${getWeekNumber(dateObj)}`;
-        } else if (period === "monthly") {
-            key = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
-        } else if (period === "yearly") {
-            key = `${dateObj.getFullYear()}`;
-        } else {
-            key = date; // Daily (default)
-        }
-
-        if (!groupedExpenseValues[key]) {
-            groupedExpenseValues[key] = 0;
-            if (!groupedLabels.includes(key)) {
-                groupedLabels.push(key);
+    // Function to group data by time period
+    function groupFinancialData(period) {
+        const expenseMap = new Map();
+        const incomeMap = new Map();
+        
+        // Process expenses
+        allExpenses.forEach(expense => {
+            const date = new Date(expense.created_at);
+            let key;
+            
+            if (period === "daily") {
+                key = date.toISOString().split('T')[0]; // YYYY-MM-DD
+            } else if (period === "weekly") {
+                const weekNum = getWeekNumber(date);
+                const year = date.getFullYear();
+                key = `${year}-W${weekNum.toString().padStart(2, '0')}`;
+            } else if (period === "monthly") {
+                const month = date.getMonth() + 1;
+                key = `${date.getFullYear()}-${month.toString().padStart(2, '0')}`;
+            } else { // yearly
+                key = date.getFullYear().toString();
             }
-        }
-        groupedExpenseValues[key] += rawExpenseValues[index];
-    });
-
-    // Process income data
-    rawIncomeLabels.forEach((date, index) => {
-        let key;
-        const dateObj = new Date(date);
-
-        if (period === "weekly") {
-            key = `Minggu ${getWeekNumber(dateObj)}`;
-        } else if (period === "monthly") {
-            key = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
-        } else if (period === "yearly") {
-            key = `${dateObj.getFullYear()}`;
-        } else {
-            key = date; // Daily (default)
-        }
-
-        if (!groupedIncomeValues[key]) {
-            groupedIncomeValues[key] = 0;
-            if (!groupedLabels.includes(key)) {
-                groupedLabels.push(key);
+            
+            if (!expenseMap.has(key)) {
+                expenseMap.set(key, 0);
             }
-        }
-        groupedIncomeValues[key] += rawIncomeValues[index];
-    });
-
-    // Sort the labels chronologically
-    if (period === "daily") {
-        groupedLabels.sort((a, b) => new Date(a) - new Date(b));
-    } else if (period === "weekly") {
-        // Sort by week number (extract number after "Minggu ")
-        groupedLabels.sort((a, b) => {
-            const weekA = parseInt(a.split(' ')[1]);
-            const weekB = parseInt(b.split(' ')[1]);
-            return weekA - weekB;
+            expenseMap.set(key, expenseMap.get(key) + parseFloat(expense.amount));
         });
-    } else if (period === "monthly" || period === "yearly") {
-        // These are already in correct format for string sorting
-        groupedLabels.sort();
+        
+        // Process income (transactions)
+        allTransactions.forEach(transaction => {
+            const date = new Date(transaction.created_at);
+            let key;
+            
+            if (period === "daily") {
+                key = date.toISOString().split('T')[0]; // YYYY-MM-DD
+            } else if (period === "weekly") {
+                const weekNum = getWeekNumber(date);
+                const year = date.getFullYear();
+                key = `${year}-W${weekNum.toString().padStart(2, '0')}`;
+            } else if (period === "monthly") {
+                const month = date.getMonth() + 1;
+                key = `${date.getFullYear()}-${month.toString().padStart(2, '0')}`;
+            } else { // yearly
+                key = date.getFullYear().toString();
+            }
+            
+            if (!incomeMap.has(key)) {
+                incomeMap.set(key, 0);
+            }
+            incomeMap.set(key, incomeMap.get(key) + parseFloat(transaction.total));
+        });
+        
+        // Combine and sort keys
+        const allKeys = Array.from(new Set([...expenseMap.keys(), ...incomeMap.keys()]));
+        
+        // Sort keys chronologically
+        allKeys.sort((a, b) => {
+            if (period === "daily") {
+                return new Date(a) - new Date(b);
+            } else if (period === "weekly") {
+                const [yearA, weekA] = a.split('-W').map(Number);
+                const [yearB, weekB] = b.split('-W').map(Number);
+                return yearA === yearB ? weekA - weekB : yearA - yearB;
+            } else if (period === "monthly") {
+                return a.localeCompare(b);
+            } else { // yearly
+                return Number(a) - Number(b);
+            }
+        });
+        
+        // Format labels based on period
+        const labels = allKeys.map(key => {
+            if (period === "daily") {
+                return new Date(key).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+            } else if (period === "weekly") {
+                const [year, week] = key.split('-W');
+                return `Minggu ${week} ${year}`;
+            } else if (period === "monthly") {
+                const [year, month] = key.split('-');
+                return new Date(`${year}-${month}-01`).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+            } else { // yearly
+                return key;
+            }
+        });
+        
+        return {
+            labels,
+            expenseValues: allKeys.map(key => expenseMap.get(key) || 0),
+            incomeValues: allKeys.map(key => incomeMap.get(key) || 0)
+        };
     }
-
-    return {
-        labels: groupedLabels,
-        expenseValues: groupedLabels.map(label => groupedExpenseValues[label] || 0),
-        incomeValues: groupedLabels.map(label => groupedIncomeValues[label] || 0)
-    };
-}
-         function getWeekNumber(d) {
-             const oneJan = new Date(d.getFullYear(), 0, 1);
-             const numberOfDays = Math.floor((d - oneJan) / (24 * 60 * 60 * 1000));
-             return Math.ceil((numberOfDays + oneJan.getDay() + 1) / 7);
-         }
-
-         let chartData = groupDataByTime("daily");
+    
+    function getWeekNumber(d) {
+        d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+        const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+        const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        return weekNo;
+    }
+    
+    let chartData = groupFinancialData("daily");
 
          let financeChart = new Chart(ctx, {
              type: 'line',
-             data: {
-                 labels: chartData.labels,
-                 datasets: [
-                     {
+                data: {
+                labels: chartData.labels,
+                datasets: [
+                    {
                          label: 'Pengeluaran',
                          data: chartData.expenseValues,
                          borderColor: '#9333ea',
@@ -349,7 +385,7 @@ function groupDataByTime(period) {
                          fill: true,
                          tension: 0.2
                      },
-                     {
+                     {    
                          label: 'Pemasukan',
                          data: chartData.incomeValues,
                          borderColor: '#34d399',
@@ -411,131 +447,186 @@ function groupDataByTime(period) {
          });
 
          document.getElementById('timeFilter').addEventListener('change', function() {
-             const selectedPeriod = this.value;
-             chartData = groupDataByTime(selectedPeriod);
+        const selectedPeriod = this.value;
+        chartData = groupFinancialData(selectedPeriod);
+        
+        financeChart.data.labels = chartData.labels;
+        financeChart.data.datasets[0].data = chartData.expenseValues;
+        financeChart.data.datasets[1].data = chartData.incomeValues;
+        financeChart.update();
+    });
+});
 
-             financeChart.data.labels = chartData.labels;
-             financeChart.data.datasets[0].data = chartData.expenseValues;
-             financeChart.data.datasets[1].data = chartData.incomeValues;
-             financeChart.update();
-         });
-     });
+document.addEventListener("DOMContentLoaded", function() {
+    const ctxOrder = document.getElementById('orderChart').getContext('2d');
+    const allTransactions = @json($allTransactions);
+    
+    function groupOrderData(period) {
+        const orderMap = new Map();
+        
+        allTransactions.forEach(transaction => {
+            const date = new Date(transaction.created_at);
+            let key;
+            
+            if (period === "daily") {
+                // Format: YYYY-MM-DD
+                key = date.toISOString().split('T')[0];
+            } else if (period === "weekly") {
+                // Format: YYYY-Www (ISO week)
+                const year = date.getFullYear();
+                const weekNum = getISOWeekNumber(date);
+                key = `${year}-W${weekNum.toString().padStart(2, '0')}`;
+            } else if (period === "monthly") {
+                // Format: YYYY-MM
+                const month = date.getMonth() + 1;
+                key = `${date.getFullYear()}-${month.toString().padStart(2, '0')}`;
+            } else { // yearly
+                // Format: YYYY
+                key = date.getFullYear().toString();
+            }
+            
+            if (!orderMap.has(key)) {
+                orderMap.set(key, 0);
+            }
+            orderMap.set(key, orderMap.get(key) + 1);
+        });
+        
+        const allKeys = Array.from(orderMap.keys());
+        
+        // Sort keys chronologically
+        allKeys.sort((a, b) => {
+            if (period === "daily") {
+                return new Date(a) - new Date(b);
+            } else if (period === "weekly") {
+                // Parse ISO week format (YYYY-Www)
+                const [yearA, weekA] = a.split('-W').map(Number);
+                const [yearB, weekB] = b.split('-W').map(Number);
+                return yearA === yearB ? weekA - weekB : yearA - yearB;
+            } else if (period === "monthly") {
+                return a.localeCompare(b);
+            } else { // yearly
+                return Number(a) - Number(b);
+            }
+        });
+        
+        // Format labels for display
+        const labels = allKeys.map(key => {
+            if (period === "daily") {
+                // Format: DD MMM (e.g., 1 Jan)
+                return new Date(key).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+            } else if (period === "weekly") {
+                // Format: Minggu ww YYYY (e.g., Minggu 05 2023)
+                const [year, week] = key.split('-W');
+                return `Minggu ${week} ${year}`;
+            } else if (period === "monthly") {
+                // Format: MMMM YYYY (e.g., Januari 2023)
+                const [year, month] = key.split('-');
+                return new Date(`${year}-${month}-01`).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+            } else { // yearly
+                // Format: YYYY
+                return key;
+            }
+        });
+        
+        return {
+            labels,
+            values: allKeys.map(key => orderMap.get(key))
+        };
+    }
+    
+    // Fungsi untuk mendapatkan nomor minggu ISO (lebih akurat)
+    function getISOWeekNumber(date) {
+        const d = new Date(date);
+        d.setHours(0, 0, 0, 0);
+        // Thursday in current week decides the year
+        d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+        // January 4 is always in week 1
+        const week1 = new Date(d.getFullYear(), 0, 4);
+        // Adjust to Thursday in week 1 and count number of weeks from date to week1
+        return 1 + Math.round(((d - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+    }
+    
+    let orderChartData = groupOrderData("daily");
 
-     document.addEventListener("DOMContentLoaded", function() {
-        const ctxOrder = document.getElementById('orderChart').getContext('2d');
-
-        // Data asli dari Blade (diambil dari backend)
-        const rawOrderLabels = @json($orderLabels); // Format tanggal dari backend
-        const rawOrderValues = @json($orderValues); // Jumlah order sesuai tanggal
-
-        // Fungsi untuk mengelompokkan data berdasarkan periode waktu
-        function groupOrderData(period) {
-            const groupedLabels = [];
-            const groupedValues = {};
-
-            rawOrderLabels.forEach((date, index) => {
-                let key;
-                const dateObj = new Date(date);
-
-                if (period === "weekly") {
-                    key = `Minggu ${getWeekNumber(dateObj)}`;
-                } else if (period === "monthly") {
-                    key = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
-                } else if (period === "yearly") {
-                    key = `${dateObj.getFullYear()}`;
-                } else {
-                    key = date; // Harian (default)
-                }
-
-                if (!groupedValues[key]) {
-                    groupedValues[key] = 0;
-                    groupedLabels.push(key);
-                }
-                groupedValues[key] += rawOrderValues[index];
-            });
-
-            return {
-                labels: groupedLabels,
-                values: groupedLabels.map(label => groupedValues[label])
-            };
-        }
-
-        function getWeekNumber(d) {
-            const oneJan = new Date(d.getFullYear(), 0, 1);
-            const numberOfDays = Math.floor((d - oneJan) / (24 * 60 * 60 * 1000));
-            return Math.ceil((numberOfDays + oneJan.getDay() + 1) / 7);
-        }
-
-        let orderChartData = groupOrderData("daily");
-
-        let orderChart = new Chart(ctxOrder, {
-            type: 'line',
-            data: {
-                labels: orderChartData.labels,
-                datasets: [{
-                    label: 'Jumlah Order',
-                    data: orderChartData.values,
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                    borderWidth: 2,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#3b82f6',
-                    pointHoverRadius: 6,
-                    pointHoverBackgroundColor: '#2563eb',
-                    fill: true,
-                    tension: 0.2
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        }
+    let orderChart = new Chart(ctxOrder, {
+        type: 'line',
+        data: {
+            labels: orderChartData.labels,
+            datasets: [{
+                label: 'Jumlah Order',
+                data: orderChartData.values,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 2,
+                pointRadius: 4,
+                pointBackgroundColor: '#3b82f6',
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: '#2563eb',
+                fill: true,
+                tension: 0.2
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
                     },
-                    x: {
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
+                    ticks: {
+                        precision: 0 // Untuk memastikan angka bulat
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                }
+            },
+            animation: {
+                duration: 2000,
+                easing: 'easeOutQuart'
+            },
+            plugins: {
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    padding: 10,
+                    titleFont: {
+                        size: 14
+                    },
+                    bodyFont: {
+                        size: 14
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            return `Order: ${context.parsed.y}`;
                         }
                     }
                 },
-                animation: {
-                    duration: 2000,
-                    easing: 'easeOutQuart'
-                },
-                plugins: {
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                        padding: 10,
-                        titleFont: {
+                legend: {
+                    labels: {
+                        font: {
                             size: 14
-                        },
-                        bodyFont: {
-                            size: 14
-                        }
-                    },
-                    legend: {
-                        labels: {
-                            font: {
-                                size: 14
-                            }
                         }
                     }
                 }
             }
-        });
-
-        document.getElementById('orderFilter').addEventListener('change', function() {
-            const selectedPeriod = this.value;
-            orderChartData = groupOrderData(selectedPeriod);
-
-            orderChart.data.labels = orderChartData.labels;
-            orderChart.data.datasets[0].data = orderChartData.values;
-            orderChart.update();
-        });
+        }
     });
+
+    document.getElementById('orderFilter').addEventListener('change', function() {
+        const selectedPeriod = this.value;
+        orderChartData = groupOrderData(selectedPeriod);
+        
+        orderChart.data.labels = orderChartData.labels;
+        orderChart.data.datasets[0].data = orderChartData.values;
+        orderChart.update();
+    });
+});
+
+     
+
     
     // Print functionality
     function printDashboard() {

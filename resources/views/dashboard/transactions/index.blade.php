@@ -408,23 +408,63 @@
 
             document.getElementById("change-amount").textContent = "Rp " + (change >= 0 ? change.toLocaleString() : "0");
         }
+// Fungsi confirmPayment yang dimodifikasi
+function confirmPayment() {
+    const paymentMethod = document.getElementById("payment_method").value;
+    
+    if (paymentMethod === "cash") {
+        // Untuk pembayaran tunai, gunakan konfirmasi yang sudah ada
+        Swal.fire({
+            title: "Konfirmasi Pembayaran Tunai",
+            text: "Apakah pelanggan sudah membayar?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Ya, sudah",
+            cancelButtonText: "Belum"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                processPayment();
+            }
+        });
+    } else {
+        // Untuk e-wallet (Shopee Pay, DANA), tampilkan modal dengan QR code
+        const totalPrice = document.getElementById("total-price").textContent;
+        const qrCodeUrl = paymentMethod === "shopee_pay" ? 
+            "{{ asset('img/qr.png') }}" : 
+            "{{ asset('img/qr.png') }}";
+        
+        Swal.fire({
+            title: `Pembayaran ${paymentMethod === "shopee_pay" ? "Shopee Pay" : "DANA"}`,
+            html: `
+                <div class="text-center">
+                    <p class="mb-2">Total Pembayaran: <strong>${totalPrice}</strong></p>
+                    <div class="my-4">
+                        <img src="${qrCodeUrl}" alt="QR Code Pembayaran" class="mx-auto" style="width: 200px; height: 200px;">
+                    </div>
+                    <p class="text-sm text-gray-600">Silakan scan QR code di atas untuk melakukan pembayaran</p>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: "Pembayaran Selesai",
+            cancelButtonText: "Batal",
+            confirmButtonColor: '#4CAF50',
+            cancelButtonColor: '#F44336',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                return new Promise((resolve) => {
+                    // Di sini bisa ditambahkan pengecekan ke API pembayaran jika tersedia
+                    // Untuk contoh, kita langsung resolve saja
+                    resolve(true);
+                });
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                processPayment();
+            }
+        });
+    }
+}
 
-        function confirmPayment() {
-            Swal.fire({
-                title: "Konfirmasi Pembayaran",
-                text: "Apakah pelanggan sudah membayar?",
-                icon: "question",
-                showCancelButton: true,
-                confirmButtonText: "Ya, sudah",
-                cancelButtonText: "Belum"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    processPayment();
-                }
-            });
-        }
-
-// Fungsi processPayment yang sudah diperbaiki
 // Fungsi processPayment yang sudah diperbaiki
 async function processPayment() {
     const cart = getCart();
@@ -519,6 +559,28 @@ async function processPayment() {
                    </div>`,
             icon: "error"
         });
+    }
+}
+
+// Fungsi updateQRCode yang telah dimodifikasi (hapus QR code dari halaman utama)
+function updateQRCode() {
+    const paymentMethod = document.getElementById("payment_method").value;
+    const qrcodeContainer = document.getElementById("qrcode-container");
+    const amountPaidContainer = document.getElementById("amount-paid-container");
+    const changeContainer = document.getElementById("change-container");
+
+    // Kosongkan container QR code
+    qrcodeContainer.innerHTML = "";
+
+    if (paymentMethod === "cash") {
+        amountPaidContainer.style.display = "block";
+        changeContainer.style.display = "block";
+    } else {
+        amountPaidContainer.style.display = "none";
+        changeContainer.style.display = "none";
+        
+        // Tidak menampilkan QR code di halaman utama lagi
+        // QR code akan ditampilkan di modal saat konfirmasi
     }
 }
 

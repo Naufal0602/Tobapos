@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CompanyProfile extends Model
+class CompanyProfiles extends Model
 {
     protected $fillable = [
         'name',
@@ -16,4 +16,6 @@ class CompanyProfile extends Model
         'phone',
         'email',
     ];
+
+    
 }

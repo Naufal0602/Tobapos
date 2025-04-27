@@ -37,21 +37,26 @@
 
               <!-- Input Password -->
               <div class="mb-6">
-                  <label for="password" class="block text-sm font-semibold text-gray-600">Password</label>
-                  <div class="relative mt-2">
-                      <i class='bx bx-lock absolute left-3 top-3 text-gray-400 text-lg'></i>
-                      <input type="password" id="password" name="password" required
-                          class="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none">
-                  </div>
-              </div>
-
-              
-
-              <!-- Tombol Login dengan Hover Animasi -->
-              <button type="submit"
-                  class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg transition-transform transform hover:scale-105">
-                  Login
-              </button>
+                <label for="password" class="block text-sm font-semibold text-gray-600">Password</label>
+                <div class="relative mt-2">
+                    <i class='bx bx-lock absolute left-3 top-3 text-gray-400 text-lg'></i>
+                    <input type="password" id="password" name="password" required
+                        class="w-full pl-10 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                </div>
+            </div>
+            
+            <!-- Forgot Password Link -->
+            <div class="mb-6 text-right">
+                <a href="{{ route('password.request') }}" class="text-sm text-purple-600 hover:underline">
+                    Forgot Password?
+                </a>
+            </div>
+            
+            <!-- Tombol Login dengan Hover Animasi -->
+            <button type="submit"
+                class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg transition-transform transform hover:scale-105">
+                Login
+            </button>
           </form>
       </div>
   </div>

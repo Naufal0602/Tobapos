@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateCompanyProfileRequest;
-use App\Models\CompanyProfile;
+use App\Models\CompanyProfiles;
 use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class CompanyProfileController extends Controller
@@ -16,46 +17,54 @@ class CompanyProfileController extends Controller
      */
     public function index(): View
     {
-        return view('welcome', ['companyProfile' => CompanyProfile::first(), 'products' => Product::latest()->take(8)->get()]);
+        return view('welcome', [
+            'companyProfile' => CompanyProfiles::first(), 
+            'products' => Product::latest()->take(8)->get()
+        ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(CompanyProfile $companyProfile)
-    {
-        $companyProfile = CompanyProfile::first();
-        return view('dashboard.company_profile.edit', compact('companyProfile'));
-    }
+    // Di CompanyProfileController.php
+public function edit()
+{
+    // Ambil selalu data dengan ID 1
+    $companyProfile = CompanyProfiles::findOrFail(1);
+    return view('dashboard.company_profile.edit', compact('companyProfile'));
+}
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateCompanyProfileRequest $request, CompanyProfile $companyProfile): RedirectResponse
-    {
-        $validated = $request->validated();
 
-        if ($request->hasFile('img_about')) {
-            if ($companyProfile->img_about) {
-                Storage::disk('public')->delete($companyProfile->img_about);
+public function update(UpdateCompanyProfileRequest $request)
+{
+    try {
+        $companyProfile = CompanyProfiles::findOrFail(1);
+        $validatedData = $request->validated();
+
+        // Handle gambar description
+        if ($request->hasFile('img_description')) {
+            if ($companyProfile->img_description) {
+                Storage::delete('public/' . $companyProfile->img_description);
             }
-
-            $imagePath = $request->file('img_about')->store('company_profile', 'public');
-            $validated['img_about'] = $imagePath;
+            $validatedData['img_description'] = $request->file('img_description')->store('company_profile', 'public');
         }
 
+        // Handle gambar home
         if ($request->hasFile('img_home')) {
             if ($companyProfile->img_home) {
-                Storage::disk('public')->delete($companyProfile->img_home);
+                Storage::delete('public/' . $companyProfile->img_home);
             }
-
-            $imagePath = $request->file('img_home')->store('company_profile', 'public');
-            $validated['img_home'] = $imagePath;
+            $validatedData['img_home'] = $request->file('img_home')->store('company_profile', 'public');
         }
 
-        $companyProfile->update($validated);
+        $companyProfile->update($validatedData);
 
-        return redirect()->route('dashboard.company_profile.edit', $companyProfile)
-            ->with('success', 'Company Profile updated successfully');
+        return redirect()->route('dashboard.index')
+            ->with('success', 'Profil perusahaan berhasil diperbarui');
+    } catch (\Exception $e) {
+        return redirect()->route('dashboard.index')
+            ->with('error', 'Terjadi kesalahan saat memperbarui profil perusahaan: ' . $e->getMessage());
     }
+}
+
 }

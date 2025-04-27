@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\CompanyProfile;
+use App\Models\CompanyProfiles;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -18,22 +18,20 @@ class UpdateCompanyProfileRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
+     
      */
     public function rules(): array
     {
-        $profile = $this->input('profile') ?? CompanyProfile::find($this->route('company_profile'));
+        $profile = $this->input('profile') ?? CompanyProfiles::find($this->route('company_profile'));
 
         return [
             'name' => ['sometimes', 'required', 'string', 'max:100'],
             'address' => ['sometimes', 'required', 'string', 'max:255'],
             'about_description' => ['nullable', 'string'],
             'home_description' => ['nullable', 'string'],
-            'img_about' => [
+            'img_description' => [
                 Rule::requiredIf(static function () use ($profile) {
-                    return empty(optional($profile)->img_about);
+                    return empty(optional($profile)->img_description);
                 }),
                 'image',
                 'mimes:jpeg,png,jpg,gif,svg',
@@ -58,7 +56,7 @@ class UpdateCompanyProfileRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'profile' => CompanyProfile::find($this->route('company_profile')),
+            'profile' => CompanyProfiles::find($this->route('company_profile')),
         ]);
     }
 }

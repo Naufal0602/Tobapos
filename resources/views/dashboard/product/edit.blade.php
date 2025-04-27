@@ -55,7 +55,7 @@
     <div class="p-2 sm:p-4 md:p-6 lg:ml-60 transition-all duration-300 page-enter">
         <div class="container mx-auto px-2 sm:px-4 py-4 sm:py-6 bg-white rounded-xl shadow-lg transition-all duration-300" data-aos="fade-up">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-center mb-6">
-                <h2 class="text-xl sm:text-2xl font-semibold text-gray-800 mb-2 md:text-center md:justify-center sm:text-center sm:justify-center sm:mb-0">Edit Produk</h2>
+                <h2 class="text-xl sm:text-2xl font-extrabold text-gray-800 mb-2 md:text-center md:justify-center sm:text-center sm:justify-center sm:mb-0">Edit Produk</h2>
             </div>
 
             <div class="border-b border-gray-200 mb-6"></div>

@@ -23,7 +23,6 @@
              x-transition:leave-end="opacity-0 scale-95"
              class="absolute right-0 mt-2 bg-white border rounded shadow-lg w-48 origin-top-right z-50">
             <a href="{{ route('profile.edit') }}" class="block px-4 py-2 hover:bg-purple-300">Profile</a>
-            <a href="{{ route('logout') }}" onclick="confirmLogout(event)" class="block px-4 py-2 hover:bg-purple-300">Logout</a>
         </div>
     </div>
 </header>
@@ -31,20 +30,3 @@
 
 <!-- Spacer untuk menghindari konten tertutup oleh header -->
 <div class="h-16"></div>
-<script>
-    function confirmLogout(event) {
-        event.preventDefault(); // Mencegah aksi default tombol
-        Swal.fire({
-            title: 'Konfirmasi Logout',
-            text: 'Apakah Anda yakin ingin logout?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Ya, Logout',
-            cancelButtonText: 'Batal',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = "{{ route('logout') }}";
-            }
-        });
-    }
-</script>

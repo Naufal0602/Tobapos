@@ -15,7 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
     
     <style>
-        /* Custom animations and effects */
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -23,7 +23,7 @@
         
         .tab-content {
             display: none;
-            min-height: 300px; /* Ensure minimum height for tab content */
+            min-height: 300px; 
         }
         
         .tab-content.active {
@@ -37,7 +37,7 @@
             font-weight: 600;
         }
         
-        /* Custom scrollbar for any overflow */
+       
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -69,19 +69,19 @@
         
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-50 h-screen"> <!-- Ensure full height and hide overflow -->
+<body class="h-screen" style="background:#F5E6F0;"> 
 
-    <!-- Include the Sidebar and Header Components -->
+   
     @include('layouts.sidebar')
     @include('layouts.navbar') 
 
-    <!-- Main content area with responsive classes -->
+  
     <div class="w-full transition-all duration-300 lg:ml-60 ml-0 p-2 lg:p-3 overflow-auto h-full" id="content"> <!-- Ensure full height and allow vertical scrolling -->
 
             <div class="bg-white rounded-xl shadow-lg p-3 lg:p-4 transition-all duration-300 max-w-6xl mt-4 xl:ml-10 ">
                 <div class="flex flex-col md:flex-row md:items-center justify-between mb-4">
                     <h2 class="text-lg sm:text-xl font-semibold text-gray-800 mb-2 md:mb-0">
-                        <i class="bx bx-building-house text-blue-500 mr-2"></i> Profil Perusahaan
+                        <i class="bx bx-building-house text-blue-500 mr-2 font-extrabold"></i> Profil Perusahaan
                     </h2>
                     <a href="{{ route('dashboard.index') }}" class="w-full md:w-auto flex items-center justify-center px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-md" data-aos="fade-left" data-aos-delay="100">
                         <i class="bx bx-arrow-back mr-2"></i> Kembali ke Dashboard
@@ -125,10 +125,16 @@
                     <button type="button" class="tab-button px-3 py-1.5 text-sm whitespace-nowrap transition-all duration-300" data-tab="home">
                         <i class="bx bx-home mr-1"></i> Halaman Utama
                     </button>
+
+                    @if(session('error'))
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 mb-3 rounded" role="alert">
+                <p>{{ session('error') }}</p>
+            </div>
+            @endif
                 </div>
                 
                 <!-- Use the proper route, and ensure it uses the ID from the controller -->
-                <form action="{{ route('dashboard.company_profile.update', $companyProfile->id ?? 1) }}" method="POST" enctype="multipart/form-data" id="companyForm">
+                <form action="{{ route('dashboard.company_profile.update') }}" method="POST" enctype="multipart/form-data" id="companyForm">
                     @csrf
                     @method('PUT')
                     
@@ -184,9 +190,9 @@
                             
                             <div class="flex flex-col md:flex-row items-start gap-3 md:gap-4">
                                 <!-- Preview About Image if exists -->
-                                @if(isset($companyProfile->img_about))
+                                @if(isset($companyProfile->img_description))
                                 <div class="relative group w-full md:w-auto">
-                                    <img src="{{ asset('storage/' . $companyProfile->img_about) }}" alt="Gambar Tentang Kami" class="w-full md:w-32 h-32 object-cover rounded-lg shadow-md border border-gray-200 transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg" id="aboutImagePreview">
+                                    <img src="{{ asset('storage/' . $companyProfile->img_description) }}" alt="Gambar Tentang Kami" class="w-full md:w-32 h-32 object-cover rounded-lg shadow-md border border-gray-200 transition-all duration-300 group-hover:scale-105 group-hover:shadow-lg" id="aboutImagePreview">
                                     <div class="absolute inset-0 bg-black bg-opacity-50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                         <span class="text-white text-xs">Gambar Tentang Kami Saat Ini</span>
                                     </div>
@@ -197,11 +203,11 @@
                                     <button type="button" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center justify-center w-full md:w-auto transition-all duration-300 hover:-translate-y-1 hover:shadow-md text-sm">
                                         <i class="bx bx-upload mr-2"></i> Pilih Gambar
                                     </button>
-                                    <input type="file" name="img_about" class="absolute left-0 top-0 opacity-0 w-full h-full cursor-pointer" accept="image/*" onchange="previewImage(this, 'aboutImagePreview')">
+                                    <input type="file" name="img_description" class="absolute left-0 top-0 opacity-0 w-full h-full cursor-pointer" accept="image/*" onchange="previewImage(this, 'aboutImagePreview')">
                                 </div>
                             </div>
                             <p class="text-xs text-gray-500 mt-1">*Kosongkan jika tidak ingin mengubah gambar</p>
-                            @error('img_about')
+                            @error('img_descrpition')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>

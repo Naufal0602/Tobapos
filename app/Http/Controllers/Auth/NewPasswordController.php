@@ -30,9 +30,14 @@ class NewPasswordController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+
+        $login_by = filter_var($request->input('login_by'), FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        $request->merge([$login_by => $request->input('login_by')]);
+       
         $request->validate([
             'token' => ['required'],
-            'email' => ['required', 'email'],
+             'email' => ['sometimes', 'required', 'email', 'exists:users,email'],
+            'username' => ['sometimes', 'required', 'email','exists:users,username'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -40,8 +45,8 @@ class NewPasswordController extends Controller
         // will update the password on an actual user model and persist it to the
         // database. Otherwise we will parse the error and return the response.
         $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            static function ($user) use ($request) {
+            $request->only($login_by, 'password', 'password_confirmation', 'token'),
+            static function ($user) use ($request, $login_by) {
                 $user->forceFill([
                     'password' => Hash::make($request->password),
                     'remember_token' => Str::random(60),
@@ -56,7 +61,7 @@ class NewPasswordController extends Controller
         // redirect them back to where they came from with their error message.
         return $status == Password::PASSWORD_RESET
             ? redirect()->route('login')->with('status', __($status))
-            : back()->withInput($request->only('email'))
-                ->withErrors(['email' => __($status)]);
+            : back()->withInput($request->only($login_by))
+                ->withErrors([$login_by => __($status)]);
     }
 }

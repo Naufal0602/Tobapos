@@ -44,7 +44,7 @@
 
     <div class="ml-60 p-6 main-content">
         <div class="max-w-lg mx-auto bg-white p-6 rounded shadow form-container">
-            <h2 class="text-xl font-bold mb-4">Tambah Produk</h2>
+            <h2 class="text-xl font-extrabold mb-4">Tambah Produk</h2>
             @if ($errors->any())
                 <div class="mb-4 p-3 bg-red-100 text-red-700 rounded">
                     <ul>
@@ -77,6 +77,9 @@
                 <select name="size" class="w-full border px-3 py-2 mb-2 rounded">
                     <option value="50 gram">50 gram</option>
                     <option value="1 kg">1 kg</option>
+                    <option value="100 gram">100 gram</option>
+                    <option value="200 gram">200 gram</option>
+                    <option value="500 gram">500 gram</option>
                 </select>
                 
                 <label class="block mb-2">Harga</label>

@@ -1,6 +1,11 @@
 @php
     use App\Models\Product;
+    use App\Models\CompanyProfiles;
 
+
+    $company_profile = CompanyProfiles::all();
+    
+    
     $categoryFilter = request('category');
     $sizeFilter = request('size');
     $query = Product::latest();
@@ -172,15 +177,16 @@
 
     <!-- Hero Section -->
 <section id="home" class="relative w-full lg:h-full md:h-fit flex flex-col xl:ml-9 md:flex-row items-center justify-between px-4 sm:px-6 py-12">
+  @foreach($company_profile as $home)
   <!-- Konten teks -->
   <div class="w-full lg:ml-10 md:w-1/2 space-y-4 text-purple-700 text-center md:text-left animate-fade-in">
     <p class="font-semibold text-lg md:text-xl leading-tight md:mb-0">Sensasi baru</p>
     <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight" style="font-family: 'Fightree';">
-      Kualitas Premium<br />
+      Kualitas Premium<br/>
       Pilihan Tepat Buat Kamu!
     </h1>
     <p class="text-base md:text-lg lg:text-xl">
-      Cobain sendiri rasa baru yang kami racik khusus buat kamu. Karena hidup itu butuh sesuatu yang beda, kan?
+      {{ $home->home_description }}
     </p>
     <div class="mt-4 justify-center">
       <a href="#products" class="px-6 py-3 mb-3 bg-purple-700 text-white rounded-full shadow-md hover:bg-brown-800 transition-transform transform hover:scale-105 inline-block">Lihat Produk</a>
@@ -189,20 +195,28 @@
 
 <!-- Container Produk -->
 <div class="w-full md:w-1/2 relative px-4 sm:px-6 md:px-8 pb-10 sm:pb-16 md:pb-20 md:mb-9 sm:py-6 md:mt-10 lg:py-10 xl:py-12">
-  <div class="relative w-full max-w-xs mx-auto group">
+  <div class="relative w-full max-w-xs mx-auto group aspect-[3/4]">
       <!-- Gambar belakang -->
-      <img src="{{ asset('img/tembakau_1.png') }}" alt="Produk Belakang" class="absolute top-4 rotate-6 left-20  w-full h-auto object-cover rounded-xl  transition-all duration-300 group-hover:scale-105 group-hover:rotate-[-2deg] z-0">
+      <img src="{{ asset('img/tembakau_1.png') }}" alt="Produk Belakang" 
+           class="absolute inset-0 w-full h-full object-cover rounded-xl 
+           rotate-6 transition-all duration-300 group-hover:scale-105 
+           group-hover:rotate-[-2deg] z-0" />
 
       <!-- Gambar depan -->
-      <img src="{{ asset('img/tembakau-2.png') }}" alt="Produk Depan" class="relative w-full -rotate-12 h-auto object-cover rounded-xl  transition-all duration-300 group-hover:scale-110 z-1">
+      <img src="{{ asset('img/tembakau-2.png') }}" alt="Produk Depan" 
+           class="absolute inset-0 w-full h-full object-cover rounded-xl 
+           -rotate-12 transition-all duration-300 group-hover:scale-110 
+           z-1" />
   </div>
 </div>
 
+@endforeach
 </section>
     
     
     <!-- About Section -->
  <section id="about" class="md:h-fit lg:h-screen  flex flex-col lg:flex-row items-center gap-10 px-8 md:px-16">
+  @foreach($company_profile as $about)
         <!-- Bagian Gambar dengan Efek Animasi -->
         <div 
             class="relative w-full lg:w-1/2 flex justify-center"
@@ -211,7 +225,7 @@
             <div class="absolute top-0 left-0 w-[60%] h-[60%] bg-yellow-300 rounded-full -z-10 animate-pulse"></div>
             
             <!-- Gambar dengan Efek Hover -->
-            <img src="{{ asset('img/picture1.png') }}" 
+            <img src="{{ asset('storage/' . $companyProfile->img_description) }}" 
                 alt="Tentang Kami" 
                 class="w-full max-w-md md:max-w-lg rounded-full shadow-xl transform transition duration-300 hover:scale-105">
         </div>
@@ -240,7 +254,7 @@
                 Cerita Kami
             </h3>
             <p class="text-gray-700 text-base md:text-lg leading-relaxed">
-                TobaPOS dimulai dari usaha kecil dengan misi sederhana: menghadirkan tembakau terbaik untuk para penikmat sejati. Kini, kami telah berkembang menjadi salah satu brand terpercaya yang tetap mempertahankan kualitas dan nilai tradisional.
+              {{ $about->about_description }}
             </p>
             <button id="close-modal-btn"
                 class="w-full py-2 mt-4 bg-purple-700 text-white font-semibold rounded-lg hover:bg-purple-800 transition-all">
@@ -248,6 +262,7 @@
             </button>
         </div>
        </div>
+       @endforeach
   </section>
     
     
@@ -351,6 +366,7 @@
     </section>
     
     <!-- Footer -->
+    @foreach ($company_profile as $welcome)
     <footer class="bg-gray-900 text-gray-300 py-12">
       <div class="container mx-auto px-6 lg:px-12">
         
@@ -362,7 +378,7 @@
           <!-- About Section -->
           <div>
             <img src="{{ asset('img/logo-v3.png') }}" alt="TobaPOS Logo" class="w-28 left-7 h-30 bg-white rounded-full hover:scale-105 transition duration-300" />
-            <h2 class="text-lg font-semibold text-white mt-2">TobaPOS</h2>
+            <h2 class="text-lg font-semibold text-white mt-2">{{ $welcome->name }}</h2>
             <p class="text-sm text-gray-400 mt-2">
               Temukan produk terbaik dengan kualitas premium. Kepuasan pelanggan adalah prioritas kami.
             </p>
@@ -382,9 +398,9 @@
           <!-- Contact & Social Media -->
           <div class="text-center md:text-left">
             <h3 class="text-white font-semibold text-lg mb-3">Contact Us</h3>
-            <p class="text-gray-400 text-sm">📍 Jl. Pintu Ledeng, Ciomas, Kec. Ciomas, Kabupaten Bogor, Jawa Barat 16610</p>
-            <p class="text-gray-400 text-sm">📞 +62 812-3456-7890</p>
-            <p class="text-gray-400 text-sm">✉️ support@tobapos.com</p>
+            <p class="text-gray-400 text-sm">📍 {{ $welcome->address }}</p>
+            <p class="text-gray-400 text-sm">📞 {{ $welcome->phone }}</p>
+            <p class="text-gray-400 text-sm">✉️ {{ $welcome->email }}</p>
     
             <!-- Social Media -->
             <div class="flex justify-center md:justify-start space-x-4 mt-4">
@@ -410,6 +426,7 @@
           &copy; 2025 <span class="font-semibold text-yellow-400">TobaPOS</span>. All rights reserved.
         </div>
       </div>
+      @endforeach
     </footer>
     
     <!-- FontAwesome untuk ikon sosial media -->
