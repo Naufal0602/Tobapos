@@ -46,7 +46,7 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-[#F5E6F0] to-[#E8D7E3]">
+<body class="bg-[#f5f7fa] font-inter">
 
     <!-- Sidebar & Navbar using Tailwind CSS for responsiveness -->
     @include('layouts.sidebar')
@@ -83,7 +83,7 @@
                                     <option value="bussa_mild" {{ $product->category == 'bussa_mild' ? 'selected' : '' }}>Bussa Mild</option>
                                     <option value="bussa_esse" {{ $product->category == 'bussa_esse' ? 'selected' : '' }}>Bussa Esse</option>
                                     <option value="vapir" {{ $product->category == 'vapir' ? 'selected' : '' }}>Vapir</option>
-                                    <option value="bussa_medium" {{ $product->category == 'bussa_medium' ? 'selected' : '' }}>Bussa Medium</option>
+                                    <option value="bussa_reguler" {{ $product->category == 'bussa_reguler' ? 'selected' : '' }}>Bussa reguler</option>
                                 </select>
                                 
                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
@@ -95,6 +95,9 @@
                         <label class="block mb-2">Size</label>
                         <select name="size" class="w-full border px-3 py-2 mb-2 rounded">
                             <option value="50 gram" {{ $product->size == '50 gram' ? 'selected' : '' }}>50 gram</option>
+                            <option value="100 gram" {{ $product->size == '100 gram' ? 'selected' : '' }}>100 gram</option>
+                            <option value="200 gram" {{ $product->size == '200 gram' ? 'selected' : '' }}>200 gram</option>
+                            <option value="500 gram" {{ $product->size == '500 gram' ? 'selected' : '' }}>500 gram</option>
                             <option value="1 kg" {{ $product->size == '1 kg' ? 'selected' : '' }}>1 kg</option>
                         </select>
 

@@ -12,6 +12,7 @@ class TransactionItem extends Model
         'product_id',
         'quantity',
         'price',
+        'size',
     ];
 
     public function transaction(): BelongsTo
@@ -24,5 +25,9 @@ class TransactionItem extends Model
         return [
             'price' => 'decimal:2',
         ];
+    }
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 }

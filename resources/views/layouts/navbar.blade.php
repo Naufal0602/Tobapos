@@ -1,16 +1,17 @@
-<header class="fixed top-0 left-0 w-full flex items-center justify-between px-6 shadow-md z-40 bg-gradient-to-tr from-[#D5A4CF] to-[#B689B0]" style="height: 68px;">
+<header class="fixed top-0 left-0 w-full flex items-center justify-between px-6 shadow-md z-40 bg-[#34495E]" style="height: 68px;">
     <div class="flex-1"></div> <!-- Spacer untuk menjaga posisi -->
 
     <!-- User Dropdown dengan Alpine.js -->
     <div x-data="{ open: false }" class="relative">
         <button @click="open = !open" class="flex items-center space-x-2">
-            <span class="bg-purple-500 text-white font-bold px-3 py-1 rounded-md">
+            <span class="hover:text-yellow-900 hover:bg-white text-white flex font-bold px-3 py-1 rounded-md">
                 {{ Auth::user()->name }}
-            </span>
-            <svg class="w-5 h-5 transition-transform duration-300" :class="{ 'rotate-180': open }" 
+           
+            <svg class="w-5 h-7 transition-transform duration-300" :class="{ 'rotate-180': open }" 
                  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
+             </span>
         </button>
 
         <!-- Dropdown Menu -->

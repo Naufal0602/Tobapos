@@ -37,74 +37,19 @@
     <style>
         .product-card {
             transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
         .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
         }
-        .quantity-control {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 10px;
-        }
-        .quantity-btn {
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background-color: #f3f4f6;
-            cursor: pointer;
-            font-weight: bold;
-            user-select: none;
-        }
-        .quantity-btn.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .quantity-input {
-            width: 40px;
-            text-align: center;
-            border: none;
-            font-size: 16px;
-            font-weight: 500;
-        }
-        .add-to-cart {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background-color: #22c55e;
-            color: white;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-        .add-to-cart.disabled {
-            background-color: #9ca3af;
-            cursor: not-allowed;
-        }
-        .stock-info {
-            text-align: center;
-            font-size: 14px;
-            color: #4b5563;
-            margin-top: 8px;
-        }
-        .fade-in {
-            opacity: 0;
-            transform: translateY(10px);
-            animation: fadeIn 0.5s ease-in-out forwards;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        
         .search-container {
             position: relative;
             width: 100%;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
         }
         .search-container .search-icon {
             position: absolute;
@@ -116,177 +61,422 @@
         .search-input {
             width: 100%;
             padding: 10px 12px 10px 40px;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
-            background-color: #f9fafb;
-            transition: all 0.3s ease;
-        }
-        .search-input:focus {
+            border-radius: 12px;
+            border: none;
+            background: transparent;
             outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
-            background-color: white;
+            font-size: 14px;
         }
-        .search-btn {
-            background-color: #4f46e5;
+        .search-input::placeholder {
+            color: #9ca3af;
+        }
+        
+        .category-tab {
+            transition: all 0.2s ease;
+            border: 1px solid #e2e8f0;
+        }
+        .category-tab.active {
+            background: #22c55e;
             color: white;
-            border-radius: 8px;
-            padding: 10px 16px;
-            font-weight: 500;
-            transition: all 0.3s ease;
+            border-color: #22c55e;
         }
-        .search-btn:hover {
-            background-color: #4338ca;
+        
+        .cart-notification {
+            position: fixed;
+            top: 20px;
+            right: 10px;
+            left: 10px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+            transform: translateY(-100px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+            font-size: 14px;
+        }
+        
+        .cart-notification.show {
+            transform: translateY(0);
+        }
+        
+        .cart-badge {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .stock-badge-low {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        .stock-badge-good {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .stock-badge-empty {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        
+        /* Mobile Small (320px) optimizations */
+        @media (max-width: 375px) {
+            .mobile-header {
+                position: sticky;
+                top: 0;
+                z-index: 40;
+                background: white;
+                border-bottom: 1px solid #e5e7eb;
+            }
+            
+            .mobile-product-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            
+            .mobile-product-card {
+                border-radius: 8px;
+                overflow: hidden;
+            }
+            
+            .mobile-product-image {
+                aspect-ratio: 1;
+                object-fit: cover;
+            }
+            
+            .search-container .search-icon {
+                left: 10px;
+            }
+            
+            .search-input {
+                padding: 8px 10px 8px 36px;
+                font-size: 13px;
+            }
+            
+            .category-tab {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+            
+            .mobile-bottom-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                border-top: 1px solid #e5e7eb;
+                z-index: 50;
+            }
+        }
+        
+        /* Ultra small mobile (280px-320px) */
+        @media (max-width: 320px) {
+            .mobile-product-grid {
+                gap: 6px;
+            }
+            
+            .search-input {
+                font-size: 12px;
+                padding: 8px 8px 8px 32px;
+            }
+            
+            .category-tab {
+                font-size: 11px;
+                padding: 5px 10px;
+            }
+        }
+
+        /* Scrollbar hide utility */
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Line clamp utility */
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 font-sans">
     @include('layouts.sidebar')
     @include('layouts.navbar') 
 
-    <!-- Main container with responsive margins -->
-    <div class="ml-0 md:ml-16 lg:ml-60 p-3 md:p-6 transition-all duration-300">
-        <div class="container mx-auto">
-            <!-- Header section with search and filters -->
-            <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 fade-in bg-white p-4 md:p-6 rounded-lg shadow-md" style="animation-delay: 0.2s;">
-                <h2 class="text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-800">Product</h2>
-                
-             
-                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
-                       <!-- Search Form -->
-                <form method="GET" action="" class="w-full sm:w-64">
-                    <div class="search-container">
-                        <i class="search-icon" data-feather="search"></i>
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search products..." class="search-input">
-                    </div>
-                </form>
-                
-                    <form method="GET" action="" class="w-full sm:w-auto" id="categoryForm">
-                        <input type="hidden" name="search" value="{{ request('search') }}">
-                        <select name="category" onchange="this.form.submit()" class="w-full p-2 md:p-3 border rounded-lg shadow bg-gray-50 text-gray-700 focus:ring-2 focus:ring-indigo-500 transition">
-                            <option value="">Semua Kategori</option>
-                            @foreach($categories as $category)
-                                <option value="{{ $category->category }}" {{ request('category') == $category->category ? 'selected' : '' }}>
-                                    {{ ucfirst($category->category) }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </form>
-                    <form method="GET" action="" class="w-full sm:w-auto" id="sizeForm">
-                        <input type="hidden" name="search" value="{{ request('search') }}">
-                        <select name="size" onchange="this.form.submit()" class="w-full p-2 md:p-3 border rounded-lg shadow bg-gray-50 text-gray-700 focus:ring-2 focus:ring-indigo-500 transition">
-                            <option value="">Semua Ukuran</option>
-                            @foreach($sizes as $size)
-                                <option value="{{ $size->size }}" {{ request('size') == $size->size ? 'selected' : '' }}>
-                                    {{ ucfirst($size->size) }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Products not found message -->
-            @if($products->isEmpty())
-            <div class="my-8 text-center">
-                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    <!-- Cart Notification Container -->
+    <div id="cart-notification" class="cart-notification">
+        <div class="flex items-center gap-2">
+            <div class="bg-white bg-opacity-20 rounded-full p-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
-                <h3 class="mt-2 text-lg font-medium text-gray-900">No products found</h3>
-                <p class="mt-1 text-sm text-gray-500">Try adjusting your search or filter to find what you're looking for.</p>
-                <div class="mt-6">
-                    <a href="{{ url()->current() }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Clear all filters
-                    </a>
+            </div>
+            <div>
+                <div class="font-semibold text-sm">Berhasil ditambahkan!</div>
+                <div class="text-xs opacity-90" id="notification-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main container with responsive design -->
+    <div class="ml-0 md:ml-16 lg:ml-60 transition-all duration-300">
+        
+        <!-- Mobile Header -->
+        <div class="mobile-header md:hidden">
+            <div class="px-2 sm:px-4 py-2 sm:py-3">
+                <!-- Search Bar and Cart -->
+                <div class="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                    <form method="GET" action="" class="flex-1">
+                        <div class="search-container">
+                            <i class="search-icon" data-feather="search"></i>
+                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari produk..." class="search-input">
+                            <input type="hidden" name="category" value="{{ request('category') }}">
+                            <input type="hidden" name="size" value="{{ request('size') }}">
+                        </div>
+                    </form>
+                    
+                    <div class="relative flex-shrink-0">
+                     <a href="{{ route('dashboard.transactions.index') }}">
+                        <button class="bg-white p-2 sm:p-3 rounded-xl border border-gray-200 relative shadow-sm">
+                            <i data-feather="shopping-cart" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-600"></i>
+                            <span id="mobile-cart-count" class="cart-badge absolute -top-1 -right-1 text-white text-xs rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center font-medium hidden"></span>
+                        </button>
+                      </a>
+                    </div>
+                </div>
+                
+                <!-- Category Filter Tabs -->
+                <div class="flex gap-1 sm:gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                    <form method="GET" action="" class="flex gap-1 sm:gap-2">
+                        <input type="hidden" name="search" value="{{ request('search') }}">
+                        <input type="hidden" name="size" value="{{ request('size') }}">
+                        
+                        <button type="submit" name="category" value="" class="category-tab px-3 sm:px-4 py-1.5 sm:py-2 rounded-full whitespace-nowrap text-xs sm:text-sm font-medium {{ !request('category') ? 'active' : 'bg-white text-gray-600' }}">
+                            Semua
+                        </button>
+                        
+                        @foreach($categories as $category)
+                        <button type="submit" name="category" value="{{ $category->category }}" class="category-tab px-3 sm:px-4 py-1.5 sm:py-2 rounded-full whitespace-nowrap text-xs sm:text-sm font-medium {{ request('category') == $category->category ? 'active' : 'bg-white text-gray-600' }}">
+                            {{ ucfirst($category->category) }}
+                        </button>
+                        @endforeach
+                    </form>
                 </div>
             </div>
-            @endif
+        </div>
 
-            <!-- Product grid with responsive columns -->
-            <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
-                @foreach($products as $index => $product)
-                <div class="product-card bg-white p-3 md:p-6 rounded-xl shadow-sm fade-in" 
-                     style="animation-delay: {{ 0.3 + ($index * 0.1) }}s;"
-                     x-data="{ 
-                        quantity: 1, 
-                        stock: {{ $product->stock }},
-                        productId: {{ $product->id }},
-                        productName: '{{ $product->name }}',
-                        productPrice: {{ $product->price }},
-                        decrementQuantity() {
-                            if (this.quantity > 1) this.quantity--;
-                        },
-                        incrementQuantity() {
-                            if (this.quantity < this.stock) this.quantity++;
-                        },
-                        addToCart() {
-                            if (this.stock <= 0) {
-                                showSweetAlert('warning', 'Peringatan!', `${this.productName} sudah habis. Silakan tambahkan stok terlebih dahulu.`);
-                                return;
-                            }
-                            
-                            let cart = JSON.parse(localStorage.getItem('cart')) || [];
-                            let existingProduct = cart.find(item => item.id === this.productId);
-                            
-                            if (existingProduct) {
-                                if (existingProduct.quantity + this.quantity <= this.stock) {
-                                    existingProduct.quantity += this.quantity;
-                                } else {
-                                    showSweetAlert('warning', 'Peringatan!', `Jumlah ${this.productName} di keranjang akan melebihi stok maksimal (${this.stock}).`);
-                                    return;
-                                }
-                            } else {
-                                cart.push({ 
-                                    id: this.productId, 
-                                    name: this.productName, 
-                                    price: this.productPrice, 
-                                    quantity: this.quantity, 
-                                    stock: this.stock 
-                                });
-                            }
-                            
-                            localStorage.setItem('cart', JSON.stringify(cart));
-                            this.stock -= this.quantity;
-                            
-                            if (this.quantity > this.stock) {
-                                this.quantity = this.stock > 0 ? this.stock : 1;
-                            }
-                            
-                            showSweetAlert('success', 'Berhasil!', `${this.quantity} ${this.productName} telah ditambahkan ke keranjang.`);
-                        }
-                     }">
-                    <div class="flex justify-center mb-3 md:mb-4">
-                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="h-16 md:h-20 lg:h-24 w-16 md:w-20 lg:w-24 object-contain">
-                    </div>
-                    <h3 class="text-center font-medium text-gray-800 text-sm md:text-base">{{ $product->name }}</h3>
-                    <p class="text-center text-gray-500 text-xs md:text-sm">{{ $product->size }}</p>
-                    <p class="text-center font-bold text-gray-900 mt-1 md:mt-2 text-sm md:text-base">Rp{{ number_format($product->price, 0, ',', '.') }}</p>
-                    <p class="stock-info text-xs md:text-sm" x-text="'Stock: ' + stock"></p>
+        <!-- Desktop Header (existing) -->
+        <div class="hidden md:block p-6">
+            <div class="container mx-auto">
+                <div class="mb-6 flex justify-between items-center bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-3xl font-bold text-gray-800">Products</h2>
                     
-                    <div class="flex justify-between items-center mt-3 md:mt-4">
-                        <div class="quantity-control">
-                            <div class="quantity-btn" 
-                                 :class="{ 'disabled': quantity <= 1 }"
-                                 x-on:click="decrementQuantity()">-</div>
-                            <input type="text" class="quantity-input text-sm md:text-base" x-model="quantity" readonly>
-                            <div class="quantity-btn" 
-                                 :class="{ 'disabled': quantity >= stock }"
-                                 x-on:click="incrementQuantity()">+</div>
-                        </div>
-                        <div class="add-to-cart w-8 h-8 md:w-10 md:h-10"
-                             :class="{ 'disabled': stock <= 0 }"
-                             x-on:click="addToCart()">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 md:h-6 md:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                            </svg>
-                        </div>
+                    <div class="flex items-center gap-3">
+                        <form method="GET" action="" class="w-64">
+                            <div class="search-container">
+                                <i class="search-icon" data-feather="search"></i>
+                                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search products..." class="search-input">
+                            </div>
+                        </form>
+                        
+                        <form method="GET" action="" id="categoryForm">
+                            <input type="hidden" name="search" value="{{ request('search') }}">
+                            <select name="category" onchange="this.form.submit()" class="p-3 border rounded-lg shadow bg-gray-50 text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                                <option value="">Semua Kategori</option>
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->category }}" {{ request('category') == $category->category ? 'selected' : '' }}>
+                                        {{ ucfirst($category->category) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </form>
+                        
+                        <form method="GET" action="" id="sizeForm">
+                            <input type="hidden" name="search" value="{{ request('search') }}">
+                            <select name="size" onchange="this.form.submit()" class="p-3 border rounded-lg shadow bg-gray-50 text-gray-700 focus:ring-2 focus:ring-green-500 transition">
+                                <option value="">Semua Ukuran</option>
+                                @foreach($sizes as $size)
+                                    <option value="{{ $size->size }}" {{ request('size') == $size->size ? 'selected' : '' }}>
+                                        {{ ucfirst($size->size) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </form>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Products not found message -->
+        @if($products->isEmpty())
+        <div class="p-4 sm:p-6 text-center">
+            <svg class="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="mt-2 text-base sm:text-lg font-medium text-gray-900">Produk tidak ditemukan</h3>
+            <p class="mt-1 text-sm text-gray-500">Coba ubah filter pencarian Anda</p>
+            <div class="mt-4 sm:mt-6">
+                <a href="{{ url()->current() }}" class="inline-flex items-center px-3 py-2 sm:px-4 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700">
+                    Reset Filter
+                </a>
+            </div>
+        </div>
+        @endif
+
+        <!-- Product grid -->
+        <div class="px-2 pb-4 sm:px-4 sm:pb-6 md:px-6">
+            <div class="grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 md:gap-6">
+                @foreach($products as $index => $product)
+                <div class="product-card bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden"
+                x-data="{ 
+                   quantity: 1, 
+                   stock: {{ $product->stock }},
+                   originalStock: {{ $product->stock }},
+                   productId: {{ $product->id }},
+                   productName: '{{ addslashes($product->name) }}',
+                   productPrice: {{ $product->price }},
+                   productSize: '{{ addslashes($product->size) }}',
+                   productCategory: '{{ addslashes($product->category) }}',
+                   
+                   init() {
+                       // Calculate current available stock based on cart
+                       this.updateAvailableStock();
+                   },
+                   
+                   updateAvailableStock() {
+                       let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                       let cartItem = cart.find(item => item.id === this.productId);
+                       let usedStock = cartItem ? cartItem.quantity : 0;
+                       this.stock = Math.max(0, this.originalStock - usedStock);
+                   },
+                   
+                   addToCart() {
+                       // Update available stock first
+                       this.updateAvailableStock();
+                       
+                       if (this.stock <= 0) {
+                           showSweetAlert('warning', 'Peringatan!', 'Stok sudah habis!');
+                           return;
+                       }
+                       
+                       if (this.quantity > this.stock) {
+                           showSweetAlert('warning', 'Peringatan!', `Stok tidak mencukupi. Tersisa ${this.stock} unit.`);
+                           return;
+                       }
+           
+                       let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                       let existingProduct = cart.find(item => item.id === this.productId);
+           
+                       if (existingProduct) {
+                           // Check if adding quantity exceeds available stock
+                           let totalAfterAdd = existingProduct.quantity + this.quantity;
+                           if (totalAfterAdd > this.originalStock) {
+                               let availableToAdd = this.originalStock - existingProduct.quantity;
+                               if (availableToAdd <= 0) {
+                                   showSweetAlert('warning', 'Peringatan!', 'Anda sudah menambahkan semua stok produk ini ke keranjang.');
+                                   return;
+                               }
+                               showSweetAlert('warning', 'Peringatan!', `Hanya bisa menambah ${availableToAdd} unit lagi.`);
+                               return;
+                           }
+                           existingProduct.quantity += this.quantity;
+                       } else {
+                           cart.push({
+                               id: this.productId,
+                               name: this.productName,
+                               price: this.productPrice,
+                               quantity: this.quantity,
+                               stock: this.originalStock,
+                               size: this.productSize,
+                               category: this.productCategory
+                           });
+                       }
+           
+                       localStorage.setItem('cart', JSON.stringify(cart));
+                       
+                       // Update available stock display
+                       this.updateAvailableStock();
+                       
+                       updateCartCounter();
+                       showCartNotification(this.quantity, this.productName, this.productSize);
+                       this.quantity = 1;
+                   }
+                }">
+                   <!-- Product Image Container -->
+                   <div class="relative bg-gradient-to-br from-gray-50 to-gray-100 p-2 sm:p-4 md:p-6">
+                       <div class="aspect-square flex items-center justify-center">
+                           <img src="{{ asset('storage/' . $product->image) }}" 
+                                alt="{{ $product->name }}" 
+                                class="max-h-16 max-w-16 sm:max-h-20 sm:max-w-20 md:max-h-32 md:max-w-32 object-contain transition-transform duration-300 hover:scale-105">
+                       </div>
+                       
+                       <!-- Stock Badge -->
+                       <div class="absolute top-1 right-1 sm:top-2 sm:right-2">
+                           <span class="px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs font-medium text-white rounded-full" 
+                                 :class="{
+                                     'stock-badge-good': stock > 10,
+                                     'stock-badge-low': stock > 0 && stock <= 10,
+                                     'stock-badge-empty': stock <= 0
+                                 }">
+                               <span x-text="stock > 0 ? 'Sisa ' + stock : 'Habis'" class="text-xs"></span>
+                           </span>
+                       </div>
+                   </div>
+                   
+                   <!-- Product Info -->
+                   <div class="p-2 sm:p-3 md:p-4 space-y-1.5 sm:space-y-2 md:space-y-3">
+                       <!-- Product Name -->
+                       <h3 class="font-semibold text-gray-900 text-xs sm:text-sm md:text-base leading-tight line-clamp-2">{{ $product->name }}</h3>
+                       
+                       <!-- Size & Category -->
+                       <div class="flex gap-1 sm:gap-2">
+                           <span class="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full">{{ $product->size }}</span>
+                           <span class="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full">{{ $product->category }}</span>
+                       </div>
+                       
+                       <!-- Price -->
+                       <div class="text-left">
+                           <p class="text-sm sm:text-lg md:text-xl font-bold text-black">Rp{{ number_format($product->price, 0, ',', '.') }}</p>
+                       </div>
+                       
+                       <!-- Quantity Selector -->
+                       <div class="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2" x-show="stock > 0">
+                           <span class="text-xs sm:text-sm text-gray-600">Qty:</span>
+                           <div class="flex items-center border rounded-lg">
+                               <button type="button" class="px-1.5 py-0.5 sm:px-2 sm:py-1 text-gray-600 hover:bg-gray-100 text-xs sm:text-sm" 
+                                       @click="quantity = Math.max(1, quantity - 1)">-</button>
+                               <input type="number" x-model="quantity" min="1" :max="stock" 
+                                      class="w-8 sm:w-12 text-center border-0 text-xs sm:text-sm py-0.5 sm:py-1 focus:ring-0">
+                               <button type="button" class="px-1.5 py-0.5 sm:px-2 sm:py-1 text-gray-600 hover:bg-gray-100 text-xs sm:text-sm" 
+                                       @click="quantity = Math.min(stock, quantity + 1)">+</button>
+                           </div>
+                       </div>
+                       
+                       <!-- Add to Cart Button -->
+                       <button class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-2 py-1.5 sm:px-4 sm:py-2.5 md:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-md disabled:transform-none" 
+                               :disabled="stock <= 0"
+                               x-on:click="addToCart()">
+                           <svg class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 2.5M7 13l2.5 2.5"></path>
+                           </svg>
+                           <span x-text="stock > 0 ? '+ Keranjang' : 'Habis'"></span>
+                       </button>
+                   </div>
+               </div>
                 @endforeach
             </div>
 
             <!-- Pagination -->
-            <div class="mt-6 md:mt-8 flex justify-center fade-in" style="animation-delay: 0.5s;">
+            <div class="mt-4 sm:mt-6 flex justify-center">
                 {{ $products->appends(request()->query())->links() }}
             </div>
         </div>
@@ -295,81 +485,88 @@
 <script>  
     document.addEventListener('DOMContentLoaded', function() {
         feather.replace();
+        updateCartCounter();
         
-        // Handle sidebar toggle for mobile
-        const sidebarToggle = document.getElementById('sidebar-toggle');
-        const sidebar = document.getElementById('sidebar');
-        
-        if (sidebarToggle && sidebar) {
-            sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('hidden');
-                sidebar.classList.toggle('block');
-            });
-        }
+        // Listen for cart updates to refresh stock display
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'cart') {
+                // Refresh the page to update stock display
+                location.reload();
+            }
+        });
         
         // Save products to localStorage
         const products = [
             @foreach($products as $product)
             {
                 id: {{ $product->id }},
-                name: "{{ $product->name }}",
+                name: "{{ addslashes($product->name) }}",
                 price: {{ $product->price }},
-                stock: {{ $product->stock }}
-            },
+                stock: {{ $product->stock }},
+                size: "{{ addslashes($product->size) }}",
+                category: "{{ addslashes($product->category) }}"
+            }@if(!$loop->last),@endif
             @endforeach
         ];
         localStorage.setItem('products', JSON.stringify(products));
-        
-        // Preserve search parameter when changing category or size
-        document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                if (form.id === 'categoryForm' || form.id === 'sizeForm') {
-                    const searchParam = new URLSearchParams(window.location.search).get('search');
-                    if (searchParam) {
-                        const searchInput = form.querySelector('input[name="search"]');
-                        if (searchInput) {
-                            searchInput.value = searchParam;
-                        }
-                    }
-                }
-            });
-        });
     });
 
-    // Global SweetAlert function
     function showSweetAlert(icon, title, text) {
         Swal.fire({
             title: title,
             text: text,
             icon: icon,
-            confirmButtonColor: '#4F46E5',
+            confirmButtonColor: '#22c55e',
             customClass: {
                 popup: 'swal2-responsive'
             }
         });
     }
     
-    // Make SweetAlert responsive
-    document.head.insertAdjacentHTML('beforeend', `
-        <style>
-            @media (max-width: 500px) {
-                .swal2-responsive {
-                    width: 90% !important;
-                    padding: 1rem !important;
-                }
-                .swal2-title {
-                    font-size: 1.25rem !important;
-                }
-                .swal2-text {
-                    font-size: 0.9rem !important;
-                }
-                .swal2-confirm {
-                    font-size: 0.9rem !important;
-                    padding: 0.5rem 1rem !important;
+    function showCartNotification(quantity, productName, productSize) {
+        const notification = document.getElementById('cart-notification');
+        const message = document.getElementById('notification-message');
+        
+        if (!notification || !message) return;
+        
+        message.textContent = `${quantity} ${productName} (${productSize})`;
+        
+        notification.classList.remove('show');
+        notification.offsetHeight;
+        
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 100);
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 4000);
+    }
+    
+    function updateCartCounter() {
+        const cartCountElement = document.getElementById('cart-count');
+        const mobileCartCountElement = document.getElementById('mobile-cart-count');
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+        
+        [cartCountElement, mobileCartCountElement].forEach(element => {
+            if (element) {
+                if (totalItems > 0) {
+                    element.textContent = totalItems;
+                    element.classList.remove('hidden');
+                } else {
+                    element.classList.add('hidden');
                 }
             }
-        </style>
-    `);
+        });
+    }
+    
+    // Function to clear cart (you can call this when transaction is completed)
+    function clearCart() {
+        localStorage.removeItem('cart');
+        updateCartCounter();
+        location.reload(); // Refresh to update stock display
+    }
 </script>
 </body>
 </html>

@@ -23,4 +23,9 @@ class Product extends Model
             'stock' => 'integer',
         ];
     }
+
+     public function transactionItems()
+    {
+        return $this->hasMany(TransactionItem::class);
+    }
 }

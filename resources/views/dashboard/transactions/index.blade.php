@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x/dist/cdn.min.js" defer></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href='https://cdn.boxicons.com/fonts/basic/boxicons.min.css' rel='stylesheet'>
 
     <style>
      
@@ -51,28 +52,31 @@
 }
     </style>
 </head>
-<body class="" style="background:#F5E6F0;"> 
+<body class="bg-[#F9FAFB] font-inter"> 
 
     @include('layouts.sidebar')
     @include('layouts.navbar')
 
     <div class="ml-0 sm:ml-60 p-3 md:p-6">
         <!-- Keep your existing content intact -->
-        <h2 class="text-2xl md:text-4xl font-bold mb-4">Transaksi</h2>
+       
 
-        <div class="bg-white p-3 md:p-6 rounded-lg shadow-md">
+        <div class="bg-[#f5f7fa] p-3 md:p-6 rounded-lg shadow-md">
+             <h2 class="text-2xl md:text-4xl font-bold mb-4">Transaksi</h2>
             <div class="overflow-x-auto">
                 <table class="w-full border-collapse border border-gray-300">
-                    <thead class="bg-gradient-to-b from-[#D5A4CF] to-[#B689B0]">
+                    <thead class="bg-[#1d4267] text-white font-inter">
                         <tr>
                             <th class="border px-2 py-1 md:px-4 md:py-2 text-xs md:text-base">Produk</th>
+                            <th class="border px-2 py-1 md:px-4 md:py-2 text-xs md:text-base">Ukuran</th>
+                            <th class="border px-2 py-1 md:px-4 md:py-2 text-xs md:text-base">Kategori</th>
                             <th class="border px-2 py-1 md:px-4 md:py-2 text-xs md:text-base">Jumlah</th>
-                            <th class="border px-2 py-1 md:px-4 md:py-2 text-xs md:text-base">Harga</th>
+                            <th class="border px-2 py-1 md:px-4 md:py-2 text-xs md:text-base"> Harga </th>
                             <th class="border px-2 py-1 md:px-4 md:py-2 text-xs md:text-base">Subtotal</th>
                             <th class="border px-2 py-1 md:px-4 md:py-2 text-xs md:text-base">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody id="cart-items">
+                    <tbody id="cart-items" class="bg-white">
                         <!-- Cart items will be loaded here -->
                     </tbody>
                 </table>
@@ -101,8 +105,8 @@
             <p id="change-container" class="text-base md:text-lg font-semibold mt-4">Kembalian: <span id="change-amount">Rp 0</span></p>
 
             <div class="mt-4 text-right">
-                <button onclick="confirmPayment()" class="bg-blue-500 text-white p-2 md:p-3 rounded-lg hover:bg-blue-700 text-sm md:text-base">
-                    Bayar
+                <button onclick="confirmPayment()" class="bg-blue-500 text-white text-center ju  p-2 md:p-3 rounded-lg hover:bg-blue-700 text-sm md:text-base">
+                   <i class='bx  bx-currency-note'></i>  Bayar
                 </button>
             </div>
         </div>
@@ -188,13 +192,13 @@
             let totalPrice = 0;
 
             if (!cartContainer) return;
-            
+
             cartContainer.innerHTML = "";
 
             if (cart.length === 0) {
                 cartContainer.innerHTML = `
                     <tr>
-                        <td colspan="5" class="border px-4 py-2 text-center">
+                        <td colspan="7" class="border font-inter font-bold px-4 py-2 text-center">
                             Keranjang belanja kosong
                         </td>
                     </tr>`;
@@ -202,17 +206,31 @@
                 cart.forEach((item, index) => {
                     const subtotal = item.price * item.quantity;
                     totalPrice += subtotal;
-                    
+
                     cartContainer.innerHTML += `
                         <tr>
                             <td class="border px-2 py-1 md:px-4 md:py-2 text-xs md:text-base">${item.name}</td>
-                            <td class="border px-2 py-1 md:px-4 md:py-2 text-xs md:text-base">
-                                <button onclick="changeQuantity(${index}, -1)" class="px-1 md:px-2 bg-red-500 text-white rounded text-xs md:text-base">-</button>
-                                <span class="mx-1 md:mx-2">${item.quantity}</span>
-                                <button onclick="changeQuantity(${index}, +1)" class="px-1 md:px-2 bg-green-500 text-white rounded text-xs md:text-base">+</button>
-                            </td>
-                            <td class="border px-2 py-1 md:px-4 md:py-2 text-xs md:text-base">Rp ${item.price.toLocaleString()}</td>
-                            <td class="border px-2 py-1 md:px-4 md:py-2 text-xs md:text-base">Rp ${subtotal.toLocaleString()}</td>
+                            <td class="border px-2 py-1 md:px-4 md:py-2 text-xs md:text-base">${item.size}</td>
+                            <td class="border px-2 py-1 md:px-4 md:py-2 text-xs md:text-base">${item.category}</td>
+                            <td class="border px-1 py-1 sm:px-2 sm:py-1 md:px-4 md:py-2 text-xs sm:text-sm md:text-base">
+                            <div class="flex items-center justify-center space-x-1 sm:space-x-2">
+                                <button onclick="changeQuantity(${index}, -1)" 
+                                        class="px-1 py-0.5 sm:px-2 sm:py-1 md:px-3 md:py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs sm:text-sm md:text-base transition-colors">
+                                    -
+                                </button>
+                                <span class="mx-1 sm:mx-2 md:mx-3 font-medium min-w-[20px] text-center">${item.quantity}</span>
+                                <button onclick="changeQuantity(${index}, +1)" 
+                                        class="px-1 py-0.5 sm:px-2 sm:py-1 md:px-3 md:py-1 bg-green-500 hover:bg-green-600 text-white rounded text-xs sm:text-sm md:text-base transition-colors">
+                                    +
+                                </button>
+                            </div>
+                        </td>
+                        <td class="border px-1 py-1 sm:px-2 sm:py-1 md:px-4 md:py-2 text-xs sm:text-sm md:text-base text-right">
+                            Rp ${item.price.toLocaleString()}
+                        </td>
+                        <td class="border px-1 py-1 sm:px-2 sm:py-1 md:px-4 md:py-2 text-xs sm:text-sm md:text-base font-semibold text-right">
+                            Rp ${subtotal.toLocaleString()}
+                        </td>
                             <td class="border px-2 py-1 md:px-4 md:py-2 text-center text-xs md:text-base">
                                 <button onclick="removeItem(${index})" class="text-red-500">Hapus</button>
                             </td>
@@ -221,7 +239,7 @@
             }
 
             document.getElementById("total-price").textContent = `Rp ${totalPrice.toLocaleString()}`;
-        }
+}
 
         function syncCartWithMenu() {
             const cart = getCart();
@@ -238,7 +256,7 @@
             saveCart(cart);
         }
 
-        function addToCart(productId, productName, productPrice, productStock) {
+        function addToCart(productId, productName, productPrice, productStock, productCategory) {
             let cart = JSON.parse(localStorage.getItem('cart')) || [];
             let existingProduct = cart.find(item => item.id === productId);
 
@@ -259,7 +277,7 @@
                 }
             } else {
                 if (productStock > 0) {
-                    cart.push({ id: productId, name: productName, price: productPrice, quantity: 1, stock: productStock });
+                    cart.push({ id: productId, name: productName, price: productPrice, quantity: 1, stock: productStock, category: productCategory });
                 } else {
                     Swal.fire({
                         title: 'Peringatan!',
@@ -388,8 +406,8 @@
                 changeContainer.style.display = "none";
 
                 const qrUrls = {
-                    shopee_pay: "{{ asset('img/qr.png') }}",
-                    dana: "{{ asset('img/qr.png') }}"
+                    shopee_pay: "{{ asset('img/qr_3.jpg') }}",
+                    dana: "{{ asset('img/qr_3.jpg') }}"
                 };
 
                 if (qrUrls[paymentMethod]) {
@@ -430,8 +448,8 @@ function confirmPayment() {
         // Untuk e-wallet (Shopee Pay, DANA), tampilkan modal dengan QR code
         const totalPrice = document.getElementById("total-price").textContent;
         const qrCodeUrl = paymentMethod === "shopee_pay" ? 
-            "{{ asset('img/qr.png') }}" : 
-            "{{ asset('img/qr.png') }}";
+            "{{ asset('img/qr_3.jpg') }}" : 
+            "{{ asset('img/qr_3.jpg') }}";
         
         Swal.fire({
             title: `Pembayaran ${paymentMethod === "shopee_pay" ? "Shopee Pay" : "DANA"}`,
@@ -466,6 +484,7 @@ function confirmPayment() {
 }
 
 // Fungsi processPayment yang sudah diperbaiki
+
 async function processPayment() {
     const cart = getCart();
     if (cart.length === 0) {
@@ -493,6 +512,9 @@ async function processPayment() {
             didOpen: () => Swal.showLoading()
         });
 
+        // Log data untuk debugging
+        console.log("Data transaksi yang dikirim:", cart);
+
         // Kirim data transaksi
         const transactionResponse = await fetch(transactionUrl, {
             method: 'POST',
@@ -510,7 +532,8 @@ async function processPayment() {
                     product_id: item.id,
                     quantity: item.quantity,
                     price: item.price,
-                    name: item.name
+                    name: item.name,
+                    size: item.size || "" // Pastikan size selalu dikirim, bahkan jika null
                 }))
             })
         });
@@ -561,7 +584,6 @@ async function processPayment() {
         });
     }
 }
-
 // Fungsi updateQRCode yang telah dimodifikasi (hapus QR code dari halaman utama)
 function updateQRCode() {
     const paymentMethod = document.getElementById("payment_method").value;
@@ -585,8 +607,12 @@ function updateQRCode() {
 }
 
 // Fungsi printThermalReceipt yang lebih robust
+// Fungsi untuk mengirim data ke printer thermal
 async function printThermalReceipt(cart, totalPrice, paymentMethod, amountPaid, change) {
     try {
+        // Log untuk debugging
+        console.log("Mengirim data ke printer:", cart);
+        
         const response = await fetch(printReceiptUrl, {
             method: 'POST',
             headers: {
@@ -598,7 +624,8 @@ async function printThermalReceipt(cart, totalPrice, paymentMethod, amountPaid, 
                 items: cart.map(item => ({
                     name: item.name.substring(0, 30), // Batasi panjang nama
                     quantity: item.quantity,
-                    price: item.price
+                    price: item.price,
+                    size: item.size || "" // Pastikan size selalu dikirim
                 })),
                 total: totalPrice,
                 payment_method: paymentMethod,
@@ -649,7 +676,6 @@ async function printThermalReceipt(cart, totalPrice, paymentMethod, amountPaid, 
         return false;
     }
 }
-
 // Fungsi untuk menangani fallback printing
 function handlePrintFallback(errorMessage) {
     console.warn("Thermal printer failed:", errorMessage);
@@ -752,7 +778,7 @@ function prepareReceiptForPrint(cart, totalPrice, paymentMethod, amountPaid, cha
         
         printReceiptItems.innerHTML += `
             <div style="display: flex; justify-content: space-between; margin: 2px 0;">
-                <span>${item.quantity}x ${itemName}</span>
+                <span>${item.quantity}x ${itemName} (${item.size})</span>
                 <span>Rp${itemTotal.toLocaleString('id-ID')}</span>
             </div>
         `;
@@ -774,7 +800,7 @@ function prepareReceiptForPrint(cart, totalPrice, paymentMethod, amountPaid, cha
     
     document.getElementById("print-receipt-paid").textContent = `Rp${paidAmount.toLocaleString('id-ID')}`;
     document.getElementById("print-receipt-change").textContent = `Rp${changeAmount.toLocaleString('id-ID')}`;
-}    
+}
         
         function initializeProductsIfEmpty() {
             const products = getProducts();

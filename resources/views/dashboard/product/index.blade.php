@@ -89,7 +89,7 @@
         }
     </style>
 </head>
-<body class="bg-[#F5E6F0]">
+<body class="bg-[#f5f7fa] text-gray-800 font-inter">
 
     <!-- Include the Sidebar and Header Components -->
     @include('layouts.sidebar')
@@ -101,7 +101,7 @@
         <!-- Header Section - Responsive layout -->
         <div class="mb-4 p-3 md:p-4 shadow-md bg-white rounded-lg">
             <div class="flex flex-col md:flex-row justify-between items-center gap-3">
-                <h2 class="text-2xl md:text-3xl font-extrabold">Kelola Barang</h2>
+                <h2 class="text-2xl md:text-3xl font-bold">Kelola Barang</h2>
                 <div class="flex flex-wrap gap-2 md:space-x-5">
                     <a href="{{ route('dashboard.products.create') }}" class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-sm md:text-base flex items-center justify-center">
                         <i class="bx bx-plus mr-1"></i> Tambah Barang
@@ -227,7 +227,7 @@
                 <!-- Header -->
                 <div class="flex justify-between items-center mb-5">
                     <h3 class="text-gray-700 font-medium text-lg">Pilih Printer</h3>
-                    <a href="#" class="text-green-500 text-sm font-medium">Lihat bantuan</a>
+                    <a href="#" onclick="openHelpModal(event)" class="text-green-500 text-sm font-medium">Lihat bantuan</a>
                 </div>
                 
                 <!-- Form content -->
@@ -262,13 +262,13 @@
             <!-- Kelola Printer Section -->
             <div class="bg-gray-100 rounded-2xl p-5 shadow-sm flex-1">
                 <!-- Tambah Printer Baru -->
-                <div class="mb-6">
+                <div class="mb-6 ">
                     <h4 class="text-gray-700 font-medium mb-3">Tambah Printer Baru</h4>
-                    <form method="POST" action="{{ route('dashboard.printers.store') }}" class="flex gap-2">
+                    <form method="POST" action="{{ route('dashboard.printers.store') }}" class="lg:flex gap-2 sm:gap-1 space-y-2 lg:space-y-0">
                         @csrf
                         <input type="text" name="nama_printer" placeholder="Nama printer baru" 
                             class="flex-1 bg-white border border-gray-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-3 rounded-lg transition duration-200" onclick="addPrinter(event, this.form)">
+                        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-3  rounded-lg transition duration-200" onclick="addPrinter(event, this.form)">
                             Tambah
                         </button>
                     </form>
@@ -277,7 +277,7 @@
                 <!-- Daftar Printer -->
                 <div class="border-t pt-4">
                     <h4 class="text-gray-700 font-medium mb-3">Kelola Printer</h4>
-                    <div class="space-y-2">
+                    <div class="max-h-40 overflow-y-auto space-y-2 pr-1">
                         @foreach($printers as $printer)
                             <div class="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-200">
                                 <span>{{ $printer->nama_printer }}</span>
@@ -298,284 +298,345 @@
         </div>
     </div>
 
-    <script>
-        // Initialize DataTable with responsive features
-        $(document).ready(function () {
-            $('#produkTable').DataTable({
-                responsive: true,
-                pageLength: 5,
-                language: {
-                    search: "Cari:",
-                    lengthMenu: "Tampilkan _MENU_ entri",
-                    info: "Menampilkan _START_ hingga _END_ dari _TOTAL_ entri",
-                    paginate: {
-                        next: "Berikutnya",
-                        previous: "Sebelumnya"
-                    }
-                }
-            });
-            
-            // Store products in local storage
-            localStorage.setItem('products', @json($products));
-            
-            // Toggle sidebar on mobile
-            $('#sidebarToggle').click(function() {
-                $('.sidebar-container').toggleClass('open');
-            });
-
-            // Check for flash messages from the server
-            @if(session('success'))
-                showSuccessAlert("{{ session('success') }}");
-            @endif
-
-            @if(session('error'))
-                showErrorAlert("{{ session('error') }}");
-            @endif
-        });
-        
-        // Completely separate print function that uses a hidden clean table
-        function printTable() {
-            // Open a new window for printing
-            let printWindow = window.open('', '_blank', 'height=600,width=800');
-            
-            // Get the clean print table HTML
-            let printContent = document.getElementById('printArea').innerHTML;
-            
-            // Write clean HTML to new window
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Data Barang</title>
-                    <style>
-                        body { 
-                            font-family: Arial, sans-serif;
-                            padding: 20px;
-                        }
-                        h1 {
-                            text-align: center;
-                            margin-bottom: 20px;
-                        }
-                        table {
-                            width: 100%;
-                            border-collapse: collapse;
-                        }
-                        th, td {
-                            border: 1px solid #ddd;
-                            padding: 8px;
-                            text-align: left;
-                        }
-                        th {
-                            background-color: #f2f2f2;
-                        }
-                        img {
-                            width: 50px;
-                            height: 50px;
-                            object-fit: cover;
-                        }
-                        @media print {
-                            @page {
-                                margin: 0.5cm;
-                            }
-                        }
-                    </style>
-                </head>
-                <body>
-                    ${printContent}
-                </body>
-                </html>
-            `);
-            
-            // Finalize and print
-            printWindow.document.close();
-            printWindow.focus();
-            
-            // Wait a moment for images to load, then print
-            setTimeout(function() {
-                printWindow.print();
-                printWindow.close();
-            }, 500);
-        }
-
-        // Sweet Alert helper functions
-        function showSuccessAlert(message) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: message,
-                timer: 3000,
-                timerProgressBar: true
-            });
-        }
-
-        function showErrorAlert(message) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: message
-            });
-        }
-
-        // Confirm delete product with SweetAlert - FIXED VERSION
-        function confirmDelete(form, productName) {
-            Swal.fire({
-                title: 'Konfirmasi Hapus',
-                text: `Apakah Anda yakin ingin menghapus produk "${productName}"?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Ya, Hapus!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Important: Submit the form directly
-                    form.submit();
-                }
-            });
-        }
-
-        // Confirm delete printer with SweetAlert - FIXED VERSION
-        function confirmDeletePrinter(form, printerName) {
-            Swal.fire({
-                title: 'Konfirmasi Hapus',
-                text: `Apakah Anda yakin ingin menghapus printer "${printerName}"?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Ya, Hapus!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Important: Submit the specific form directly
-                    form.submit();
-                }
-            });
-        }
-
-        // Add printer with SweetAlert - FIXED VERSION
-        function addPrinter(event, form) {
-            event.preventDefault();
-            const formData = new FormData(form);
-            const printerName = formData.get('nama_printer');
-
-            if (!printerName) {
-                showErrorAlert('Nama printer tidak boleh kosong!');
-                return;
-            }
-
-            // Regular form submission with SweetAlert on success
-            Swal.fire({
-                title: 'Menambahkan Printer...',
-                text: 'Mohon tunggu sebentar',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                    
-                    // Submit form through AJAX
-                    $.ajax({
-                        url: form.action,
-                        type: 'POST',
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(response) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: `Printer "${printerName}" berhasil ditambahkan`,
-                                timer: 1500
-                            }).then(() => {
-                                window.location.reload();
-                            });
-                        },
-                        error: function(xhr) {
-                            let errorMessage = 'Terjadi kesalahan saat menambahkan printer';
-                            if (xhr.responseJSON && xhr.responseJSON.message) {
-                                errorMessage = xhr.responseJSON.message;
-                            }
-                            showErrorAlert(errorMessage);
-                        }
-                    });
-                }
-            });
-        }
-
-        // Set printer with SweetAlert - FIXED VERSION
-        function setPrinter(event, form) {
-            event.preventDefault();
-            const formData = new FormData(form);
-            const printerName = formData.get('printer_name');
-
-            if (!printerName) {
-                showErrorAlert('Silakan pilih printer terlebih dahulu');
-                return;
-            }
-
-            // Regular form submission with SweetAlert on success
-            Swal.fire({
-                title: 'Menyimpan...',
-                text: 'Mohon tunggu sebentar',
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                    
-                    // Submit form through AJAX
-                    $.ajax({
-                        url: form.action,
-                        type: 'POST',
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(response) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil!',
-                                text: `Printer "${printerName}" berhasil dipilih`,
-                                timer: 1500
-                            });
-                        },
-                        error: function(xhr) {
-                            let errorMessage = 'Terjadi kesalahan saat memilih printer';
-                            if (xhr.responseJSON && xhr.responseJSON.message) {
-                                errorMessage = xhr.responseJSON.message;
-                            }
-                            showErrorAlert(errorMessage);
-                        }
-                    });
-                }
-            });
-        }
-
-        // Load printers from API
-        document.addEventListener('DOMContentLoaded', function () {
-            fetch('{{ route('dashboard.products.printers') }}')
-                .then(response => response.json())
-                .then(printers => {
-                    console.log('Daftar printer:', printers); // Debug daftar printer
-                    const printerSelect = document.getElementById('printer_name');
-                    printerSelect.innerHTML = '<option value="">Pilih printer</option>'; // Reset dropdown
-
-                    printers.forEach(printer => {
-                        const option = document.createElement('option');
-                        option.value = printer;
-                        option.textContent = printer;
-                        printerSelect.appendChild(option);
-                    });
-                })
-                .catch(error => {
-                    console.error('Gagal memuat daftar printer:', error);
-                });
-        });
-    </script>
+    <div id="helpModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6 max-w-md mx-4 w-full">
+            <div class="flex justify-between items-center mb-4">
+                <h4 class="text-lg font-medium text-gray-800">Bantuan Pengaturan Printer</h4>
+                <button onclick="closeHelpModal()" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="text-gray-600 space-y-3">
+                <p>Berikut panduan cara mengatur printer di aplikasi:</p>
+                <ol class="list-decimal pl-5 space-y-2">
+                    <li>Pastikan printer telah terhubung dengan komputer Anda</li>
+                    <li>Pilih printer dari daftar yang tersedia pada setting</li>
+                    <li>printer properties</li>
+                    <li>pilih menu sharing masukan nama printer</li>
+                    <li>Untuk menambah printer baru, yang sudah di share name nya lalu klik tombol "Tambah Printer"</li>
+                    <li>Untuk menghapus printer, klik icon tempat sampah di samping nama printer</li>
+                    <li>Setelah memilih printer, Anda dapat menggunakan untuk transaksi</li>
+                </ol>
+                <p class="mt-3">Untuk bantuan lebih lanjut, silakan hubungi tim dukungan teknis kami.</p>
+            </div>
+            <div class="mt-6 text-right">
+                <button onclick="closeHelpModal()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Tutup</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
+
+
+<script>
+    // Initialize DataTable with responsive features
+    $(document).ready(function () {
+        $('#produkTable').DataTable({
+            responsive: true,
+            pageLength: 5,
+            language: {
+                search: "Cari:",
+                lengthMenu: "Tampilkan _MENU_ entri",
+                info: "Menampilkan _START_ hingga _END_ dari _TOTAL_ entri",
+                paginate: {
+                    next: "Berikutnya",
+                    previous: "Sebelumnya"
+                }
+            }
+        });
+        
+        // Store products in local storage
+        localStorage.setItem('products', @json($products));
+        
+        // Toggle sidebar on mobile
+        $('#sidebarToggle').click(function() {
+            $('.sidebar-container').toggleClass('open');
+        });
+
+        // Check for flash messages from the server
+        @if(session('success'))
+            showSuccessAlert("{{ session('success') }}");
+        @endif
+
+        @if(session('error'))
+            showErrorAlert("{{ session('error') }}");
+        @endif
+    });
+    
+    // Completely separate print function that uses a hidden clean table
+    function printTable() {
+        // Open a new window for printing
+        let printWindow = window.open('', '_blank', 'height=600,width=800');
+        
+        // Get the clean print table HTML
+        let printContent = document.getElementById('printArea').innerHTML;
+        
+        // Write clean HTML to new window
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Data Barang</title>
+                <style>
+                    body { 
+                        font-family: Arial, sans-serif;
+                        padding: 20px;
+                    }
+                    h1 {
+                        text-align: center;
+                        margin-bottom: 20px;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                    }
+                    th, td {
+                        border: 1px solid #ddd;
+                        padding: 8px;
+                        text-align: left;
+                    }
+                    th {
+                        background-color: #f2f2f2;
+                    }
+                    img {
+                        width: 50px;
+                        height: 50px;
+                        object-fit: cover;
+                    }
+                    @media print {
+                        @page {
+                            margin: 0.5cm;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                ${printContent}
+            </body>
+            </html>
+        `);
+        
+        // Finalize and print
+        printWindow.document.close();
+        printWindow.focus();
+        
+        // Wait a moment for images to load, then print
+        setTimeout(function() {
+            printWindow.print();
+            printWindow.close();
+        }, 500);
+    }
+
+    // Sweet Alert helper functions
+    function showSuccessAlert(message) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: message,
+            timer: 3000,
+            timerProgressBar: true
+        });
+    }
+
+    function showErrorAlert(message) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: message
+        });
+    }
+
+    // Confirm delete product with SweetAlert - FIXED VERSION
+    function confirmDelete(form, productName) {
+        Swal.fire({
+            title: 'Konfirmasi Hapus',
+            text: `Apakah Anda yakin ingin menghapus produk "${productName}"?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Important: Submit the form directly
+                form.submit();
+            }
+        });
+    }
+
+    // Confirm delete printer with SweetAlert - FIXED VERSION
+    function confirmDeletePrinter(form, printerName) {
+        Swal.fire({
+            title: 'Konfirmasi Hapus',
+            text: `Apakah Anda yakin ingin menghapus printer "${printerName}"?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Important: Submit the specific form directly
+                form.submit();
+            }
+        });
+    }
+
+    // Add printer with SweetAlert - FIXED VERSION
+    function addPrinter(event, form) {
+        event.preventDefault();
+        const formData = new FormData(form);
+        const printerName = formData.get('nama_printer');
+
+        if (!printerName) {
+            showErrorAlert('Nama printer tidak boleh kosong!');
+            return;
+        }
+
+        // Regular form submission with SweetAlert on success
+        Swal.fire({
+            title: 'Menambahkan Printer...',
+            text: 'Mohon tunggu sebentar',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+                
+                // Submit form through AJAX
+                $.ajax({
+                    url: form.action,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: `Printer "${printerName}" berhasil ditambahkan`,
+                            timer: 1500
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'Terjadi kesalahan saat menambahkan printer';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        showErrorAlert(errorMessage);
+                    }
+                });
+            }
+        });
+    }
+
+    // Set printer with SweetAlert - FIXED VERSION
+    function setPrinter(event, form) {
+        event.preventDefault();
+        const formData = new FormData(form);
+        const printerName = formData.get('printer_name');
+
+        if (!printerName) {
+            showErrorAlert('Silakan pilih printer terlebih dahulu');
+            return;
+        }
+
+        // Regular form submission with SweetAlert on success
+        Swal.fire({
+            title: 'Menyimpan...',
+            text: 'Mohon tunggu sebentar',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+                
+                // Submit form through AJAX
+                $.ajax({
+                    url: form.action,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: `Printer "${printerName}" berhasil dipilih`,
+                            timer: 1500
+                        });
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'Terjadi kesalahan saat memilih printer';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        showErrorAlert(errorMessage);
+                    }
+                });
+            }
+        });
+    }
+
+    // Load printers from API
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch('{{ route('dashboard.products.printers') }}')
+            .then(response => response.json())
+            .then(printers => {
+                console.log('Daftar printer:', printers); // Debug daftar printer
+                const printerSelect = document.getElementById('printer_name');
+                printerSelect.innerHTML = '<option value="">Pilih printer</option>'; // Reset dropdown
+
+                printers.forEach(printer => {
+                    const option = document.createElement('option');
+                    option.value = printer;
+                    option.textContent = printer;
+                    printerSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Gagal memuat daftar printer:', error);
+            });
+    });
+
+
+        
+
+function openHelpModal(event) {
+    event.preventDefault();
+    document.getElementById('helpModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
+}
+
+function closeHelpModal() {
+    document.getElementById('helpModal').classList.add('hidden');
+    document.body.style.overflow = 'auto'; // Re-enable scrolling
+}
+
+// Close modal when clicking outside of it
+window.onclick = function(event) {
+    const modal = document.getElementById('helpModal');
+    if (event.target === modal) {
+        closeHelpModal();
+    }
+}
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeHelpModal();
+    }
+});
+
+
+</script>

@@ -7,13 +7,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 </head>
-<body class="h-screen flex items-center justify-center bg-gradient-to-r from-orange-300 to-purple-500 px-4">
+<body class="h-screen flex items-center justify-center bg-gradient-to-r from-[#ffff] to-[#33495E] px-4">
 
   <div class="w-full max-w-4xl flex flex-col md:flex-row bg-white shadow-lg rounded-2xl overflow-hidden animate-slideUp">
       
       <!-- Bagian Kiri: Logo & Welcome (Hanya Muncul di Desktop) -->
-      <div class="hidden md:flex flex-1 flex-col items-center justify-center text-white bg-gradient-to-t from-purple-900 to-white p-10">
-          <img src="{{ asset('img/logo-v3.png') }}" alt="Logo" class="w-40 md:w-60 mb-4">
+      <div class="hidden md:flex flex-1 flex-col items-center justify-center text-white bg-gradient-to-t from-[#33495E] to-[#ffff] p-10">
+          <img src="{{ asset('img/logo_update.png') }}" alt="Logo" class="w-40 md:w-60 mb-4">
           <h2 class="text-3xl font-bold">Welcome Back!</h2>
       </div>
 
@@ -47,14 +47,14 @@
             
             <!-- Forgot Password Link -->
             <div class="mb-6 text-right">
-                <a href="{{ route('password.request') }}" class="text-sm text-purple-600 hover:underline">
+                <a href="{{ route('password.request') }}" class="text-sm text-[#3DA8D6] hover:underline">
                     Forgot Password?
                 </a>
             </div>
             
             <!-- Tombol Login dengan Hover Animasi -->
             <button type="submit"
-                class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg transition-transform transform hover:scale-105">
+                class="w-full bg-[#33495E] hover:bg-[##33495E] text-white font-semibold py-3 rounded-lg transition-transform transform hover:scale-105">
                 Login
             </button>
           </form>

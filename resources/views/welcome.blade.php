@@ -103,10 +103,109 @@
 
   .animate-fade-in { animation: fadeIn 2s ease-in-out forwards; }
   .animate-slide-in { animation: slideIn 1s ease-in-out forwards; }
+  
+  .responsive-category-select select::-webkit-scrollbar {
+    width: 8px;
+}
 
+.responsive-category-select select::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.responsive-category-select select::-webkit-scrollbar-thumb {
+    background: #10b981;
+    border-radius: 4px;
+}
+
+.responsive-category-select select::-webkit-scrollbar-thumb:hover {
+    background: #059669;
+}
+
+/* Animation for cards */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.grid > div {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.grid > div:nth-child(1) { animation-delay: 0.1s; }
+.grid > div:nth-child(2) { animation-delay: 0.2s; }
+.grid > div:nth-child(3) { animation-delay: 0.3s; }
+.grid > div:nth-child(4) { animation-delay: 0.4s; }
+
+/* Responsive improvements */
+@media (max-width: 640px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .grid {
+        gap: 1.5rem;
+    }
+    
+    .responsive-category-select .flex {
+        gap: 1rem;
+    }
+    
+    .responsive-category-select select {
+        font-size: 0.875rem;
+        padding: 0.75rem;
+    }
+}
+
+/* Premium hover effects */
+.group:hover .bg-green-600 {
+    background: linear-gradient(135deg, #059669, #10b981);
+}
+
+/* Custom pagination styles */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pagination a,
+.pagination span {
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.pagination a {
+    background: white;
+    color: #059669;
+    border: 2px solid #d1fae5;
+}
+
+.pagination a:hover {
+    background: #059669;
+    color: white;
+    transform: translateY(-2px);
+    shadow: 0 10px 25px rgba(5, 150, 105, 0.3);
+}
+
+.pagination .active span {
+    background: #059669;
+    color: white;
+    border: 2px solid #059669;
+}
  
 </style>
-<body class="" style="background-color:#fce9e9; font-family: 'Fightree';">
+<body class="bg-[#ffff]" style="font-family: 'Fightree';">
  <header id="main-header" class="fixed w-full top-0 shadow-md z-10 transition-all duration-300">
   <nav id="navbar" class="relative px-4 py-4 flex justify-between items-center transition-all duration-300">
     <a class="text-3xl font-bold leading-none" href="#">
@@ -179,7 +278,7 @@
 <section id="home" class="relative w-full lg:h-full md:h-fit flex flex-col xl:ml-9 md:flex-row items-center justify-between px-4 sm:px-6 py-12">
   @foreach($company_profile as $home)
   <!-- Konten teks -->
-  <div class="w-full lg:ml-10 md:w-1/2 space-y-4 text-purple-700 text-center md:text-left animate-fade-in">
+  <div class="w-full lg:ml-10 md:w-1/2 space-y-4 text-[#33495E] text-center md:text-left animate-fade-in">
     <p class="font-semibold text-lg md:text-xl leading-tight md:mb-0">Sensasi baru</p>
     <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight" style="font-family: 'Fightree';">
       Kualitas Premium<br/>
@@ -189,7 +288,7 @@
       {{ $home->home_description }}
     </p>
     <div class="mt-4 justify-center">
-      <a href="#products" class="px-6 py-3 mb-3 bg-purple-700 text-white rounded-full shadow-md hover:bg-brown-800 transition-transform transform hover:scale-105 inline-block">Lihat Produk</a>
+      <a href="#products" class="px-6 py-3 mb-3 bg-[#33495E] text-white rounded-full shadow-md hover:bg-brown-800 transition-transform transform hover:scale-105 inline-block">Lihat Produk</a>
     </div>
   </div>
 
@@ -235,14 +334,14 @@
             class="w-full lg:w-1/2 text-center lg:text-left"
             data-aos="fade-left">
             <h2 class="text-xl font-bold text-gray-600 uppercase tracking-wide">Tentang</h2>
-            <h1 class="text-4xl md:text-5xl font-bold text-purple-800 italic mb-4">
+            <h1 class="text-4xl md:text-5xl font-bold text-black italic mb-4">
                 TobaPOS
             </h1>
             <p class="text-lg md:text-xl text-gray-700 leading-relaxed">
                 Kami membawa tradisi tembakau berkualitas ke dalam era modern. Dengan kerja sama petani lokal, setiap produk kami dibuat dengan dedikasi tinggi untuk memberikan pengalaman terbaik bagi pelanggan.
             </p>
             <button id="learn-more-btn"
-                class="mt-6 px-6 py-3 bg-purple-600 text-white font-semibold rounded-full shadow-lg hover:bg-red-700 transform transition-all duration-300 hover:scale-110">
+                class="mt-6 px-6 py-3 bg-[#33495E] text-white font-semibold rounded-full shadow-lg hover:bg-red-700 transform transition-all duration-300 hover:scale-110">
                 Lebih banyak
             </button>
         </div>
@@ -268,58 +367,154 @@
     
 
     <!-- Products Section -->
-    <section id="products" class="py-12">
-      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="justify-between flex ">
-          <h2 class="text-2xl sm:text-3xl font-bold text-center mb-6 sm:mb-8 text-purple-800 ">
-              Daftar Produk Kami
-          </h2>
-          
-          <!-- Filter Section -->
-          <div class="mb-8">
-              <form method="GET" action="{{ url('/') }}" class="responsive-category-select">
-                  <div class="flex flex-col md:flex-row justify-center gap-4">
-                      <select name="category" onchange="this.form.submit()" class="p-3 border rounded-lg shadow bg-gray-50 text-gray-700 focus:ring-2 focus:ring-indigo-500 transition">
-                          <option value="">Semua Kategori</option>
-                          @foreach($categories as $category)
-                              <option value="{{ $category->category }}" {{ request('category') == $category->category ? 'selected' : '' }}>
-                                  {{ ucfirst($category->category) }}
-                              </option>
-                          @endforeach
-                      </select>
-                      <select name="size" onchange="this.form.submit()" class="p-3 border rounded-lg shadow bg-gray-50 text-gray-700 focus:ring-2 focus:ring-indigo-500 transition">
-                          <option value="">Semua Ukuran</option>
-                          @foreach($sizes as $size)
-                              <option value="{{ $size->size }}" {{ request('size') == $size->size ? 'selected' : '' }}>
-                                  {{ ucfirst($size->size) }}
-                              </option>
-                          @endforeach
-                      </select>
-                  </div>
-              </form>
-          </div>
+  <section id="products" class="py-16 bg-gradient-to-b from-green-50 to-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header Section -->
+        <div class="text-center mb-12">
+            <h2 class="text-4xl sm:text-5xl font-bold mb-4 text-green-800">
+                Daftar Produk Kami
+            </h2>
+            <div class="w-24 h-1 bg-green-600 mx-auto mb-6"></div>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                Temukan koleksi produk berkualitas tinggi dengan cita rasa yang tak terlupakan
+            </p>
         </div>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 mt-8">
-              @foreach ($products as $product)
-              <div class="bg-white p-3 sm:p-4 rounded-lg shadow-md hover:scale-105 hover:shadow-lg transition duration-300">
-                  <img src="{{ asset('storage/' . $product->image) }}" alt="Gambar {{ $product->name }}"
-                      class="w-full h-32 sm:h-40 object-cover rounded-lg" />
-                  <h3 class="text-sm sm:text-base font-semibold mt-2 text-gray-900">{{ $product->name }}</h3>
-                  <p class="text-xs sm:text-sm text-gray-600">{{ $product->category }}</p>
-                  <div class="flex justify-between items-center mt-1">
-                      <p class="text-xs sm:text-sm text-gray-600">{{ $product->size }}</p>
-                      <p class="text-xs sm:text-sm text-gray-600">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
-                  </div>
-              </div>
-              @endforeach
-          </div>
-          
-          <!-- Pagination -->
-          <div class="mt-8">
-              {{ $products->appends(request()->except('page'))->links() }}
-          </div>
-      </div>
-  </section>
+        
+        <!-- Filter Section -->
+        <div class="mb-12">
+            <div class="bg-white rounded-2xl shadow-lg p-6 border border-green-100">
+                <form method="GET" action="{{ url('/') }}" class="responsive-category-select">
+                    <div class="flex flex-col md:flex-row justify-center gap-6">
+                        <!-- Category Filter -->
+                        <div class="relative">
+                            <label class="block text-sm font-semibold text-green-800 mb-2">Kategori Produk</label>
+                            <select name="category" onchange="this.form.submit()" 
+                                    class="w-full md:w-64 p-4 border-2 border-green-200 rounded-xl shadow-sm bg-white text-gray-700 focus:ring-4 focus:ring-green-200 focus:border-green-500 transition-all duration-300 appearance-none cursor-pointer hover:border-green-400">
+                                <option value="">🌟 Semua Kategori</option>
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->category }}" {{ request('category') == $category->category ? 'selected' : '' }}>
+                                        {{ ucfirst($category->category) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none mt-8">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <!-- Size Filter -->
+                        <div class="relative">
+                            <label class="block text-sm font-semibold text-green-800 mb-2">Ukuran</label>
+                            <select name="size" onchange="this.form.submit()" 
+                                    class="w-full md:w-64 p-4 border-2 border-green-200 rounded-xl shadow-sm bg-white text-gray-700 focus:ring-4 focus:ring-green-200 focus:border-green-500 transition-all duration-300 appearance-none cursor-pointer hover:border-green-400">
+                                <option value="">📏 Semua Ukuran</option>
+                                @foreach($sizes as $size)
+                                    <option value="{{ $size->size }}" {{ request('size') == $size->size ? 'selected' : '' }}>
+                                        {{ ucfirst($size->size) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none mt-8">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Products Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            @foreach ($products as $product)
+            <div class="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-green-100 hover:border-green-300 transform hover:-translate-y-2">
+                <!-- Product Image -->
+                <div class="relative overflow-hidden">
+                    <img src="{{ asset('storage/' . $product->image) }}" 
+                         alt="Gambar {{ $product->name }}"
+                         class="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-500" />
+                    <!-- Overlay -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <!-- Premium Badge -->
+                    <div class="absolute top-4 left-4">
+                        <span class="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+                            Premium
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Product Info -->
+                <div class="p-6">
+                    <div class="mb-4">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-green-700 transition-colors duration-300">
+                            {{ $product->name }}
+                        </h3>
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                {{ ucfirst($product->category) }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Product Details -->
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center text-gray-600">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V6a2 2 0 012-2h12a2 2 0 012 2v2m-6 12V10m0 0l3-3m-3 3l-3-3"></path>
+                            </svg>
+                            <span class="text-sm font-medium">{{ $product->size }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Price -->
+                    <div class="flex justify-between items-center">
+                        <div class="text-center flex gap-5">
+                            <p class="text-2xl font-bold text-green-700">
+                                Rp {{ number_format($product->price, 0, ',', '.') }}
+                            </p>
+                            <p class="text-sm items-center text-center text-gray-500">Harga terbaik</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bottom accent -->
+                <div class="h-1 bg-gradient-to-r from-green-400 to-green-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+            </div>
+            @endforeach
+        </div>
+        
+        <!-- No Products Message -->
+        @if($products->isEmpty())
+        <div class="text-center py-16">
+            <div class="bg-white rounded-2xl shadow-lg p-12 max-w-md mx-auto border border-green-100">
+                <svg class="w-16 h-16 text-green-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.467.901-6.06 2.37l-.894-.894C6.068 15.454 8.92 14 12 14s5.932 1.454 6.954 2.476l-.894.894A7.962 7.962 0 0112 15z"></path>
+                </svg>
+                <h3 class="text-xl font-bold text-gray-700 mb-2">Tidak ada produk ditemukan</h3>
+                <p class="text-gray-500">Coba ubah filter pencarian Anda</p>
+            </div>
+        </div>
+        @endif
+        
+        <!-- Pagination -->
+        <div class="mt-16">
+            <div class="flex justify-center">
+                <div class="bg-white rounded-2xl shadow-lg p-4 border border-green-100">
+                    {{ $products->appends(request()->except('page'))->links() }}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Background Elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-green-200 rounded-full opacity-10"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-green-300 rounded-full opacity-10"></div>
+    </div>
+</section>
     
     
         
@@ -343,22 +538,22 @@
           
       <!-- Contact Form -->
         <div class="w-full md:w-1/2 bg-gray-100 p-6 rounded-lg shadow-lg mt-20 mx-auto">
-          <h2 class="text-4xl font-bold text-[#7303c0] mb-4 justify-center text-center p-7">CONTACT US</h2>
+          <h2 class="text-4xl font-bold mb-4 justify-center text-center p-7">CONTACT US</h2>
           <form action="{{ route('send.message') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="mb-4">
-              <label class="block text-purple-500 text-sm font-bold mb-2">Name</label>
+              <label class="block text-[#33495E] text-sm font-bold mb-2">Name</label>
               <input type="text" name="name" class="w-full px-3 py-2 border border-purple-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#928DAB]" placeholder="Enter your name" required>
             </div>
             <div class="mb-4">
-              <label class="block text-purple-500 text-sm font-bold mb-2">Email</label>
+              <label class="block text-[#33495E] text-sm font-bold mb-2">Email</label>
               <input type="email" name="email" class="w-full px-3 py-2 border border-purple-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#928DAB]" placeholder="Enter your email" required>
             </div>
             <div class="mb-4">
-              <label class="block text-purple-500 text-sm font-bold mb-2">Message</label>
+              <label class="block text-[#33495E] text-sm font-bold mb-2">Message</label>
               <textarea type="text" name="message" class="w-full px-3 py-2 border border-purple-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#928DAB]" rows="4" placeholder="Enter your message" required></textarea>
             </div>
-            <button type="submit" class="w-full bg-[#7303c0] text-white py-2 rounded-lg hover:bg-[#8023d0] transition duration-300 font-medium">Kirim</button>          
+            <button type="submit" class="w-full bg-[#33495E] text-white py-2 rounded-lg hover:bg-[#8023d0] transition duration-300 font-medium">Kirim</button>          
           </form>
         </div>
         </div>

@@ -15,6 +15,7 @@
         "laravel/breeze": "^2.3",
         "laravel/framework": "^11.31",
         "laravel/tinker": "^2.9",
+        "midtrans/midtrans-php": "^2.6",
         "mike42/escpos-php": "^4.0",
         "rawilk/laravel-printing": "^3.0"
     },

@@ -12,15 +12,16 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   
 </head>
-<body class="" style="background:#F5E6F0;">
+<body class="font-bold font-inter" style="background:#F5E6F0;">
 
     @include('layouts.sidebar')
     @include('layouts.navbar')
 
     <div class="ml-60 p-6">
-        <h2 class="text-2xl font-semibold mb-4">Tambah Pengeluaran</h2>
         
         <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-semibold mb-4">Tambah Pengeluaran</h2>
+
             <form id="createExpenseForm" action="{{ route('dashboard.expenses.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf                
                 <div class="mb-4">
@@ -38,8 +39,13 @@
                 
                 <div class="mb-4">
                     <label class="block text-gray-700">Pengeluaran</label>
-                    <input type="number" name="amount" class="w-full px-4 py-2 border rounded-lg">
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
+                        <input type="text" id="rupiah-display" class="w-full px-4 py-2 border rounded-lg pl-8" placeholder="0">
+                        <input type="hidden" name="amount" id="amount-actual" value="">
+                    </div>
                 </div>
+                
 
                 <div class="mb-4">
                     <label class="block text-gray-700">Unggah Bukti Pembayaran</label>
@@ -69,6 +75,29 @@
                 }
             });
         }
+                    const rupiahDisplay = document.getElementById('rupiah-display');
+                    const amountActual = document.getElementById('amount-actual');
+                    
+                    rupiahDisplay.addEventListener('input', function() {
+                        // Remove non-digit characters for processing
+                        let numericValue = this.value.replace(/\D/g, '');
+                        
+                        // Store the actual numeric value in the hidden field
+                        amountActual.value = numericValue;
+                        
+                        // Format for display with thousand separators
+                        if (numericValue != '') {
+                            let formattedValue = parseInt(numericValue, 10).toLocaleString('id-ID');
+                            this.value = formattedValue;
+                        }
+                    });
+                    
+                    // On focus, select all for easier editing
+                    rupiahDisplay.addEventListener('focus', function() {
+                        if (this.value) {
+                            this.select();
+                        }
+                    })
     </script>
 
 </body>

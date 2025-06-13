@@ -19,6 +19,7 @@ class PrintController extends Controller
                 'items.*.name' => 'required|string',
                 'items.*.quantity' => 'required|numeric|min:1',
                 'items.*.price' => 'required|numeric|min:0',
+                'items.*.size' => 'sometimes|string', // Added size validation
                 'total' => 'required|numeric|min:0',
                 'payment_method' => 'required|string|in:cash,shopee_pay,dana',
                 'amount_paid' => 'required|numeric|min:0',
@@ -97,21 +98,31 @@ class PrintController extends Controller
             $printer->text("Jl. Pintu Ledeng, Ciomas\n");
             $printer->text("Kab. Bogor, Jawa Barat 16610\n");
             $printer->text("====================\n");
-
+    
             // Items
             $printer->setJustification(Printer::JUSTIFY_LEFT);
             foreach ($data['items'] as $item) {
                 $itemTotal = $item['price'] * $item['quantity'];
-                $printer->text($item['quantity'] . "x " . $item['name'] . "\n");
+                
+                // Pastikan size akan muncul di struk
+                $itemName = $item['name'];
+                if (isset($item['size']) && !empty($item['size'])) {
+                    $itemName .= " (" . $item['size'] . ")";
+                }
+                
+                // Log untuk debug
+                \Illuminate\Support\Facades\Log::info('Item untuk dicetak: ' . $itemName);
+                
+                $printer->text($item['quantity'] . "x " . $itemName . "\n");
                 $printer->setJustification(Printer::JUSTIFY_RIGHT);
                 $printer->text("Rp" . number_format($itemTotal, 0, ',', '.') . "\n");
                 $printer->setJustification(Printer::JUSTIFY_LEFT);
             }
-
+    
             // Payment info
             $printer->text("\n");
             $this->printPaymentDetails($printer, $data);
-
+    
             // Footer
             $printer->setJustification(Printer::JUSTIFY_CENTER);
             $printer->text("\n====================\n");
@@ -121,11 +132,11 @@ class PrintController extends Controller
             $printer->setEmphasis(false);
             $printer->text("====================\n");
             $printer->text(date("Y-m-d H:i:s") . "\n");
-
+    
             // Finalize
             $printer->cut();
             $printer->close();
-
+    
         } catch (\Exception $e) {
             if (isset($printer)) {
                 $printer->close();
@@ -133,7 +144,6 @@ class PrintController extends Controller
             throw $e;
         }
     }
-
     private function printPaymentDetails($printer, $data)
     {
         $paymentMethod = $this->getPaymentMethodText($data['payment_method']);

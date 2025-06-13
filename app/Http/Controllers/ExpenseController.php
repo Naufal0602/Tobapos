@@ -16,7 +16,7 @@ class ExpenseController extends Controller
      */
     public function index(): View
     {
-        $expenses = Expense::latest()->paginate(10);
+        $expenses = Expense::latest()->paginate(50);
         return view('dashboard.expense.index', compact('expenses'));
     }
 
