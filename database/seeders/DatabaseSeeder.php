@@ -20,5 +20,12 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
+
+        $this->call([
+        AdminUserSeeder::class,
+        CompanyProfileSeeder::class, // jika kamu ingin sekalian isi profil perusahaan
+    ]);
     }
+
+    
 }

@@ -132,7 +132,7 @@
     </style>
 </head>
 
-<body style="background:#F5E6F0;">
+<body style="background:#F9FAFB;">
 
     @include('layouts.sidebar')
     @include('layouts.navbar')

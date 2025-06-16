@@ -30,7 +30,7 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-[#F5E6F0] to-[#E8D7E3]">
+<body class="bg-[#F9FAFB]">
 
     @include('layouts.sidebar')
     @include('layouts.navbar')

@@ -95,9 +95,10 @@
         table.dataTable thead th.sorting_desc:after {
             content: "\e9db";
         }
+
     </style>
 </head>
-<body class="font-inter" style="background:#F5E6F0;" x-data="expenseApp()">
+<body class="font-inter" style="background:#F9FAFB;" x-data="expenseApp()">
     @include('layouts.sidebar')
     @include('layouts.navbar')
     
@@ -105,11 +106,11 @@
         <div class="bg-white p-3 md:p-6 rounded-lg shadow-md">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                 <h2 class="text-2xl md:text-4xl font-bold">Pengeluaran</h2>
-                <div class="mt-4 md:mt-0 space-x-2">
-                    <a href="{{ route('dashboard.expenses.create') }}" class="bg-green-500 text-white px-4 py-2 rounded-lg inline-block">
+               <div id="button_create" class="mt-4 md:mt-0 flex flex-col sm:flex-row sm:space-x-2 space-y-2">
+                    <a href="{{ route('dashboard.expenses.create') }}" class="bg-green-500 text-white px-4 py-2 rounded-lg text-center">
                         <i class='bx bx-plus'></i> Buat Pengeluaran
                     </a>
-                    <button onclick="printTable()" class="bg-blue-500 text-white px-4 py-2 rounded-lg no-print">
+                    <button onclick="printTable()" class="bg-blue-500 text-white px-4 py-2 rounded-lg no-print text-center">
                         <i class='bx bx-printer'></i> Print
                     </button>
                 </div>

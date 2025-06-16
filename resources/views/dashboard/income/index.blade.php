@@ -100,7 +100,7 @@ use App\Models\TransactionItem;
         }
     </style>
 </head>
-<body class="font-inter" style="background:#F5E6F0;"> 
+<body class="font-inter" style="background:#F9FAFB;"> 
 
     @include('layouts.sidebar')
     @include('layouts.navbar')

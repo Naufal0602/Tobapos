@@ -69,7 +69,7 @@
         
     </style>
 </head>
-<body class="h-screen" style="background:#F5E6F0;"> 
+<body class="h-screen" style="background:#F9FAFB;"> 
 
    
     @include('layouts.sidebar')
@@ -88,7 +88,7 @@
                     </a>
                 </div>
 
-                <div class="border-b border-gray-200 mb-4"></div>
+                <div class="border-b border-[#F5E6F0] mb-4"></div>
 
                 @if(session('success'))
                 <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-3 mb-3 rounded" role="alert">

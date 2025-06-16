@@ -208,7 +208,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 font-sans">
+<body class="bg-[##F9FAFB] font-sans">
     @include('layouts.sidebar')
     @include('layouts.navbar') 
 
